@@ -38,7 +38,7 @@ Ok, this looks sensible. Let's have a look at the phylogeny.
 tree
 ```
 
-Yes, this makes sense too. The number of tips in the phylogeny is exactly the number of rows in the data frame. It's seems that the column that matches them to each toher is ALLMB_OrigSpecies. Check this: 
+Yes, this makes sense too. The number of tips in the phylogeny is exactly the number of rows in the data frame. It's seems that the column that matches them to each other is ALLMB_OrigSpecies. Check this: 
 
 ```{r}
 dat$match_col<-gsub(pattern=" ","_",dat$ALLMB_OrigSpecies)
@@ -46,7 +46,7 @@ length(which(dat$match_col %in% tree$tip.label))
 length(which(tree$tip.label %in% dat$match_col))
 ```
 
-This looks mostly good, but there are 142 species without two-match. I think it's spelling things. I willd drop them. There's one more thing that is a bit odd. If we look at the TRY_AccSpeciesID column which indicates the TRY species this has been matched to we see quite a lot of duplicates, indicating that multiple phylogeny tips are matched to the smae TRY species. This makes some sense given that quite some of the mega-phylogeny tips are spelling error duplicates, but let's have a look at the numbers. 
+This looks mostly good, but there are 142 species without two-match. I think it's spelling things. I will drop them. There's one more thing that is a bit odd. If we look at the TRY_AccSpeciesID column which indicates the TRY species this has been matched to we see quite a lot of duplicates, indicating that multiple phylogeny tips are matched to the smae TRY species. This makes some sense given that quite some of the mega-phylogeny tips are spelling error duplicates, but let's have a look at the numbers. 
 
 ```{r}
 length(which(duplicated(dat$TRY_AccSpeciesID)))
@@ -61,7 +61,9 @@ Given that our purpose is visualisation, and not 'real' analysis this will proba
 
 Essentially, we have (i) a bunch of different binary data, e.g. Any data, specific traits (SLA), the six Diaz traits and (ii) quantitative, i.e. number of data. The latter can also represent the former, given that the absence of data just means a 0 on a continous scale. 
 
-I will randomly selected 75 tips/rows to higlight some combinations of options. The reason I am not immediately going into the full 350k is that rendering a figure of that size can actually take a while, so I want to have a bit of an idea first of where we are heading. A few directions follow. 
+I will randomly selected 75 tips/rows to higlight some combinations of options. The reason I am not immediately going into the full 350k is that rendering a figure of that size can actually takes a while (almost half an hour, on my quite fast computer), so I want to have a bit of an idea first of where we are heading. 
+
+A few potential directions follow. 
 
 ```{r, include=F}
 
@@ -74,7 +76,7 @@ small_tree<-drop.tip(tree,
 
 ## Binary Data
 
-An option is to highlight presence/absence of one or multiple binary (or categorical) traits using colour-coded concentric rings around the phylogeny. This is what we did in Figure 2 in our PNAS paper last year (have a look). I will now, for the 75 random species phylogeny, do this to visualise (1) Any data present, (2) Six Diaz traits and (3) SLA (just a raondom trait), in a single figure (Figure 1.
+An option is to highlight presence/absence of one or multiple binary (or categorical) traits using colour-coded concentric rings around the phylogeny. This is what we did in Figure 2 in our PNAS paper last year (have a look). I will now, for the 75 random species phylogeny, do this to visualise (1) Any data present, (2) Six Diaz traits and (3) SLA (just a random trait), in a single figure (Figure 1; big 300k version attached as separate pdf).
 
 ```{r,echo=F}
 binary_traits<-small_dat %>% select(Number.of.Traits,SLA,All.six.traits..Diaz.et.al.2016.)
@@ -139,7 +141,7 @@ small_trait_num_log<-ifelse(small_trait_num>0,log(small_trait_num),0)
 plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan")
 ```
 
-This of course compresses the really big species numbers, and also make immediately obvious what species don't have any data (i.e. the ones without bars). In that sense, it basically tells us the same as the inner ring of Figure 1, but also a bit more. We can improve it even further (Figure 5):
+This of course compresses the really big species numbers, and also make immediately obvious what species don't have any data (i.e. the ones without bars). In that sense, it basically tells us the same as the inner ring of Figure 1, but also a bit more. We can improve it even further (Figure 5, Second big 300k separate pdf figure):
 
 ```{r,echo=F}
 plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
@@ -200,13 +202,14 @@ There is lots and lots of things we can do, some thoughts/considerations:
 - None of the above figures have any indication of taxonomy, which people will want to have a rough idea about. Some options to this are 1. coloured branches indicating main groups (e.g. angiosperms, gymnosperms), 2. little manual drawings at the outside of the phylogeny indicating main figures. 3. Textual labels outside the phylogeny 4. A combination of labels and figures (see our PNAS paper again), 5. Concentric rings with colours (see our Nature Communications paper from 5 years ago).
 - Some of the things above may not scale well to 300k species. We should probably keep it simple at that scale. 
 
-I think that at this stage, the most productive thing is to think a bit deeper about what we want the figure /figures to show, and ask how we can best approach this from there. What is the specific message of the figure in the manuscript. How much space do we have? One big figure? A few big figures? One big and a few small? 
+Ultimately, the choice of figures is primarily a matter of what we want to show, and what the funciton of the figure(s) in the paper will be. 
+I think that at this stage, the most productive thing is therefore to think a bit deeper about what we want the figure /figures to show, and ask how we can best approach this from there. What is the specific message of the figure in the manuscript? How much space do we have? One big figure? A few big figures? One big and a few small? 
 
-I think it's best, Jens, if you think about this a bit more. We might even have a Skype-chat. If you send me a draft of the ms (do you have it already?), I could also think along those lines. For now, my two cents are:
+I think it's best, Jens, if you think about questions like this a bit more. We might even have a Skype-chat. If you send me a draft of the ms (do you have it already?), I could also think along those lines. For now, my two cents are:
 
-- A version of the first figure, with as main message the simple patterns of presence / absence, potentially with coloured branches indicating either number of traits, specific traits of interest or some form of taxonomy is likely the key most interesting contribution.  
+- A version of the first figure, with as main message the simple patterns of presence / absence, potentially with coloured branches indicating either number of traits, specific traits of interest or some form of taxonomy is likely the key most interesting contribution. Basically, the big version of Figure 1, with whistles and bells, and made nice.  
 - In addition, something with number of traits (for all species, or only for those species with at least one trait present): here I like the coloured barplots around the phylogeny, potentially with an ancestral state reconstruction, 
-- Potential second addition: something with the six variables of interest, either individually, or as a single (binary variable). 
+- Potential second addition: something with the six variables of interest, either individually, or as a single (binary variable). Basically, the big version of figure 
 This way, you go from broadest (i.e. any presence?) to more specific (how much data) to very specific (which data for specific traits).
 
 Lastly, of course, subclades of interest are always an option. I have no good insight here what is useful yet. Let's save for later. 
