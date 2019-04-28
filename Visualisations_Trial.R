@@ -182,8 +182,26 @@ dat_binary_traits$All.six<-ifelse(is.na(dat_binary_traits$All.six),0,1)
 dat_binary_traits$SLA<-ifelse(is.na(dat_binary_traits$SLA),0,1)
 rownames(dat_binary_traits)<-dat_plot$match_col
 
+pdf("./Trial_full_Rings_Pres_SLA_allSix.pdf")
 trait.plot(tree = tree_plot,dat = dat_binary_traits,cols = list(Presence=c("gray90","red"),
                                                              SLA=c("gray90","green"),
                                                              All.six=c("gray90","blue")),
-           legend=T,cex.lab=0.0001)
+           legend=T,cex.lab=0.0001,edge.width=0.25)
+dev.off()
 
+
+#Prep vector
+summary(dat_plot$Number.of.Traits)
+trait_num<-dat_plot$Number.of.Traits
+names(trait_num)<-dat_plot$match_col
+trait_num[is.na(trait_num)]<-0 #Because NA means 0 traits here
+trait_num_log<-ifelse(trait_num>0,log(trait_num),0)
+
+pdf("./Trial_full_number_bars_all_around.pdf")
+plotTree.wBars(tree_plot,x = trait_num_log,border="white",type="fan",
+               col = viridis(250)[as.numeric(cut(trait_num_log[match(tree_plot$tip.label,names(trait_num_log))],
+                                                 breaks = 250))])
+add.color.bar(100,viridis(250),title = "Trait # (natural log)",prompt = F,
+              lims = c(min(trait_num_log),max(trait_num_log)),
+              x=-185,y=-185)
+dev.off()
