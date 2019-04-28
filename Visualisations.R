@@ -9,6 +9,7 @@ library(phytools)
 library(dplyr)
 library(data.table)
 library(RColorBrewer)
+library(viridis)
 
 #####Data reading
 
@@ -70,19 +71,6 @@ plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan")
 #Colour the bars based on the matching colour
 #Create a function to generate a continuous color palette 
 #inspired by https://stackoverflow.com/questions/9946630/colour-points-in-a-plot-differently-depending-on-a-vector-of-values and contMap which used rainbow
-# cols <- rainbow(1001, start = 0, end = 0.7)
-# names(cols) <- 0:1000
- lims_var<-c(min(small_trait_num),max(small_trait_num))
- lims_var
-# trans_var<-0:1000/1000 * (lims_var[2] - lims_var[1]) + lims_var[1]
-# names(trans_var)<-0:1000
-# head(trans_var)
-rbPal <- colorRampPalette(c('blue','red'))
-rbPal(100)[as.numeric(cut(small_trait_num,breaks = 100))]
-#Cut in 25 colours on the log scale
-plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
-               col = rbPal(25)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
-                                               breaks = 25))])
 
 #Try with viridis gradients
 plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
