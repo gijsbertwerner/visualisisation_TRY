@@ -72,7 +72,20 @@ trait.plot(tree = small_tree,dat = binary_traits,cols = list(Presence=c("gray90"
                                                              All.six=c("gray90","blue")),
            legend=T,cex.lab=0.0001)
 
-#Explore some potential variables, first number of traits with data
+binary_traits2<-small_dat %>% select(Leaf.Area,SLA,Leaf.Nitrogen.Content.Per.Dry.Mass,Seed.Dry.Mass,Plant.Height,Stem.Specific.Density..SSD.)
+binary_traits2[is.na(binary_traits2)]<-0
+rownames(binary_traits2)<-small_dat$match_col
+binary_traits2
+
+trait.plot(tree = small_tree,dat = binary_traits2,cols = list(Leaf.Area=c("gray90","red"),
+                                                             SLA=c("gray90","pink"),
+                                                             Leaf.Nitrogen.Content.Per.Dry.Mass=c("gray90","green"),
+                                                             Seed.Dry.Mass=c("gray90","blue"),
+                                                             Plant.Height=c("gray90","purple"),
+                                                             Stem.Specific.Density..SSD.=c("gray90","orange")),
+           legend=T,cex.lab=0.0001)
+
+#####Number of traits with data
 summary(small_dat$Number.of.Traits)
 #Prep vector
 small_trait_num<-small_dat$Number.of.Traits
