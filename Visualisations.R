@@ -10,6 +10,7 @@ library(dplyr)
 library(data.table)
 library(RColorBrewer)
 library(viridis)
+library(diversitree)
 
 #####Data reading
 
@@ -54,6 +55,22 @@ small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.75)
 
+####Binary yes/no
+head(small_dat)
+binary_traits<-small_dat %>% select(Number.of.Traits,SLA,All.six.traits..Diaz.et.al.2016.)
+names(binary_traits)[1]<-"Presence"
+names(binary_traits)[3]<-"All.six"
+binary_traits$Presence<-ifelse(is.na(binary_traits$Presence),0,1)
+binary_traits$All.six<-ifelse(is.na(binary_traits$All.six),0,1)
+binary_traits$SLA<-ifelse(is.na(binary_traits$SLA),0,1)
+rownames(binary_traits)<-small_dat$match_col
+head(binary_traits)
+
+trait.plot(tree = small_tree,dat = binary_traits,cols = list(Presence=c("gray90","red"),
+                                                             SLA=c("gray90","green"),
+                                                             All.six=c("gray90","blue")),
+           cex.lab=0.01)
+
 #Explore some potential variables, first number of traits with data
 summary(small_dat$Number.of.Traits)
 #Prep vector
@@ -86,5 +103,30 @@ add.color.bar(100,viridis(100),title = "Trait #",prompt = F,
               lims = c(min(small_trait_num),max(small_trait_num)),
               x=-185,y=-185)
 
+###Do some ancestral state reconstructing using contMap
+small_tree_rec_num<-contMap(tree = small_tree,x = small_trait_num,outline = F,
+                            type="fan",col="white",fsize=c(0,1))
+plot(setMap(small_tree_rec_num,viridis(100)),fsize=c(0,1),type="fan") #Only with coloured branches. 
+small_tree_rec_num_viridis<-setMap(small_tree_rec_num,viridis(100))
+#And with a coloured branch and bars
+plotTree.wBars(tree=small_tree_rec_num_viridis$tree,x = small_trait_num,
+               method = "plotSimmap",
+               colors=small_tree_rec_num_viridis$cols,
+               fsize=c(0,1),type="fan",border="white",
+               col = viridis(100)[as.numeric(cut(small_trait_num[match(small_tree$tip.label,names(small_trait_num))],
+                                                                                        breaks = 100))])
 
+small_tree_rec_num_log<-contMap(tree = small_tree,x = small_trait_num_log,outline = F,
+                            type="fan",col="white",fsize=c(0,1))
+plot(setMap(small_tree_rec_num_log,viridis(100)),fsize=c(0,1),type="fan") #Only with coloured branches. 
+small_tree_rec_num_log_viridis<-setMap(small_tree_rec_num_log,viridis(100))
+#And with a coloured branch and bars
+plotTree.wBars(tree=small_tree_rec_num_log_viridis$tree,x = small_trait_num_log,
+               method = "plotSimmap",
+               colors=small_tree_rec_num_viridis$cols,
+               fsize=c(0,1),type="fan",border="white",
+               col = viridis(100)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
+                                                 breaks = 100))])
+
+#
 
