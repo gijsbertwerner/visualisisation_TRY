@@ -8,6 +8,7 @@ library(ape)
 library(phytools)
 library(dplyr)
 library(data.table)
+library(RColorBrewer)
 
 #####Data reading
 
@@ -58,8 +59,44 @@ summary(small_dat$Number.of.Traits)
 small_trait_num<-small_dat$Number.of.Traits
 names(small_trait_num)<-small_dat$match_col
 small_trait_num[is.na(small_trait_num)]<-0 #Because NA means 0 traits here
-plotTree.wBars(small_tree,x = small_trait_num,border="white")
+#Visualise this in two ways
+plotTree.wBars(small_tree,x = small_trait_num,border="white",type="fan")
+plotTree.wBars(small_tree,x = small_trait_num,border="white",type="phylogram")
+#Take natural log of values
 small_trait_num_log<-ifelse(small_trait_num>0,log(small_trait_num),0)
-plotTree.wBars(small_tree,x = small_trait_num_log,border="white")
+plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan")
 
-##Next step: colour gradient on branches and in coloured tip bars..
+
+#Colour the bars based on the matching colour
+#Create a function to generate a continuous color palette 
+#inspired by https://stackoverflow.com/questions/9946630/colour-points-in-a-plot-differently-depending-on-a-vector-of-values and contMap which used rainbow
+# cols <- rainbow(1001, start = 0, end = 0.7)
+# names(cols) <- 0:1000
+ lims_var<-c(min(small_trait_num),max(small_trait_num))
+ lims_var
+# trans_var<-0:1000/1000 * (lims_var[2] - lims_var[1]) + lims_var[1]
+# names(trans_var)<-0:1000
+# head(trans_var)
+rbPal <- colorRampPalette(c('blue','red'))
+rbPal(100)[as.numeric(cut(small_trait_num,breaks = 100))]
+#Cut in 25 colours on the log scale
+plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
+               col = rbPal(25)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
+                                               breaks = 25))])
+
+#Try with viridis gradients
+plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
+               col = viridis(100)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
+                                              breaks = 100))])
+add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
+              lims = c(min(small_trait_num_log),max(small_trait_num_log)),
+              x=-185,y=-185)
+plotTree.wBars(small_tree,x = small_trait_num,border="white",type="fan",
+               col = viridis(100)[as.numeric(cut(small_trait_num[match(small_tree$tip.label,names(small_trait_num))],
+                                                 breaks = 100))])
+add.color.bar(100,viridis(100),title = "Trait #",prompt = F,
+              lims = c(min(small_trait_num),max(small_trait_num)),
+              x=-185,y=-185)
+
+
+
