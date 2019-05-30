@@ -104,7 +104,7 @@ small_tree
 #Two potential semi-quantitative ones: 1. log of number / or numbers, or 2. bins of numbers (ordinal) 
 #A discrete one (gf)
 
-#Quantiative reconstruction, log numbers
+####Quantiative reconstruction, log numbers
 summary(small_dat$Log.Number.of.Traits)
 #Create vector
 small_trait_num_log<-small_dat$Log.Number.of.Traits
@@ -124,7 +124,7 @@ nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16) 
 
 #So this models num trait = 0, as the same as num-trait = 1. 
 
-#Quantiative reconstruction, absolute numbers
+###Quantiative reconstruction, absolute numbers
 summary(small_dat$Number.of.Traits)
 #Create vector
 small_trait_num<-small_dat$Number.of.Traits
@@ -154,7 +154,8 @@ small_trait_num_bins<-small_trait_num_bins[match(small_tree$tip.label,names(smal
 table(small_trait_num_bins)
 small_tree_bifurc<-multi2di(small_tree)
 
-#Model as an ordered character using meristic in fitDiscrete 
+####Model as an (ordered) character 
+#ordered using meristic in fitDiscrete 
 system.time(
 small_tree_trait_num_bins_meristic<-fitDiscrete(phy = small_tree,dat=small_trait_num_bins,
                                                 model = "meristic")
@@ -188,5 +189,8 @@ small_tree_trait_num_bins_ARD$AICc
 
 plot.phylo(small_tree,type="p",cex=1,
            tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
-nodelabels(pie = small_tree_trait_num_bins_ER$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
-plotRECON(small_tree_trait_num_bins_ER$phy,likelihoods = small_tree_trait_num_bins_ER$states)
+nodelabels(pie = small_tree_trait_num_bins_ARD$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
+
+#Think will try only ARD
+
+
