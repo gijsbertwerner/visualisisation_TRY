@@ -122,7 +122,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=100),]
+small_dat<-dat[sample(nrow(dat),size=1000),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -240,6 +240,8 @@ nodelabels(pie = small_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","b
 
 
 ####Combine everything (for potential combinations)
+
+#Generate baseplot
 names(small_dat)
 small_dat_plotting_traits <- small_dat %>% select(trait_num_bins,
                                                 Leaf.Area,
@@ -269,4 +271,20 @@ small_base_plot<-
                                                                    All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 )
+
+Sys.time()
+pdf(file="./small_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                             Leaf.Area=c("gray90","#8dd3c7"),
+                                                                             SLA=c("gray90","#bebada"),
+                                                                             Leaf.N=c("gray90","#fb8072"),
+                                                                             Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                             Plant.Height=c("gray90","#fdb462"),
+                                                                             SSD=c("gray90","#b3de69"),
+                                                                             All_Diaz=c("gray90","#fccde5")),
+               legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
+
+dev.off()
+Sys.time()
+
 
