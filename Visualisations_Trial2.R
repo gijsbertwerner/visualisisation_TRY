@@ -12,6 +12,7 @@ library(RColorBrewer)
 library(viridis)
 library(diversitree)
 library(corHMM)
+library(Rphylopars)
 
 #####Data reading
 
@@ -63,6 +64,22 @@ table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 rm(dat_gf)
 gc()
 
+#Some more data organisation
+summary(dat$Number.of.Traits)
+#NA's here represent absence, i.e. zero
+dat$Number.of.Traits<-ifelse(is.na(dat$Number.of.Traits),0,dat$Number.of.Traits)
+summary(dat$Number.of.Traits) #This looks convincing
+#Break up in categories for where we want to use it. 
+dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
+                                         breaks = c(-Inf,1,6,11,101,Inf),
+                                         labels = c("Absence","# 1-5","# 6-10","# 11-100","# > 100"),right=F))
+table(dat$trait_num_bins)
+
+#Create the proper categories for GF
+table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
+dat$GIFT_PlantGrowthForm<-gsub(pattern="/","&",dat$GIFT_PlantGrowthForm) #We do this so that with the quantitative reconstruction they will be properly read as being uknown
+table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
+dat %>% filter(GIFT_PlantGrowthForm=="other") #Drop the 'others' to limit computation -> Discuss with Jens
+dat <- dat %>% filter(!GIFT_PlantGrowthForm=="other")
 
 # Visualisation - Smallest ------------------------------------------------
-
