@@ -18,11 +18,11 @@ library(corHMM)
 #Read in data directly from the zipped file
 dat<-as.data.table(
   read.csv(unz("./Data/ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv.zip",
-             "ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv")))
+               "ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv")))
 head(dat)
 dat2<-as.data.table(
   read.csv(unz("./Data/ALLMB_JK_AccSpec_6.csv.zip",
-                   "ALLMB_JK_AccSpec_6.csv")))
+               "ALLMB_JK_AccSpec_6.csv")))
 head(dat2)
 #Slightly different dataset
 
@@ -78,11 +78,11 @@ rownames(binary_traits2)<-small_dat$match_col
 binary_traits2
 
 trait.plot(tree = small_tree,dat = binary_traits2,cols = list(Leaf.Area=c("gray90","red"),
-                                                             SLA=c("gray90","pink"),
-                                                             Leaf.Nitrogen.Content.Per.Dry.Mass=c("gray90","green"),
-                                                             Seed.Dry.Mass=c("gray90","blue"),
-                                                             Plant.Height=c("gray90","purple"),
-                                                             Stem.Specific.Density..SSD.=c("gray90","orange")),
+                                                              SLA=c("gray90","pink"),
+                                                              Leaf.Nitrogen.Content.Per.Dry.Mass=c("gray90","green"),
+                                                              Seed.Dry.Mass=c("gray90","blue"),
+                                                              Plant.Height=c("gray90","purple"),
+                                                              Stem.Specific.Density..SSD.=c("gray90","orange")),
            legend=T,cex.lab=0.0001)
 
 #####Number of traits with data
@@ -117,7 +117,7 @@ small_dat_corhmm_binary_1ratecat<-
 #Try with viridis gradients
 plotTree.wBars(small_tree,x = small_trait_num_log,border="white",type="fan",
                col = viridis(100)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
-                                              breaks = 100))])
+                                                 breaks = 100))])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
               lims = c(min(small_trait_num_log),max(small_trait_num_log)),
               x=-185,y=-185)
@@ -139,10 +139,10 @@ plotTree.wBars(tree=small_tree_rec_num_viridis$tree,x = small_trait_num,
                colors=small_tree_rec_num_viridis$cols,
                fsize=c(0,1),type="fan",border="white",
                col = viridis(100)[as.numeric(cut(small_trait_num[match(small_tree$tip.label,names(small_trait_num))],
-                                                                                        breaks = 100))])
+                                                 breaks = 100))])
 
 small_tree_rec_num_log<-contMap(tree = small_tree,x = small_trait_num_log,outline = F,
-                            type="fan",col="white",fsize=c(0,1))
+                                type="fan",col="white",fsize=c(0,1))
 plot(setMap(small_tree_rec_num_log,viridis(100)),fsize=c(0,1),type="fan") #Only with coloured branches. 
 small_tree_rec_num_log_viridis<-setMap(small_tree_rec_num_log,viridis(100))
 #And with a coloured branch and bars
@@ -184,8 +184,8 @@ rownames(dat_binary_traits)<-dat_plot$match_col
 
 pdf("./Trial_full_Rings_Pres_SLA_allSix.pdf")
 trait.plot(tree = tree_plot,dat = dat_binary_traits,cols = list(Presence=c("gray90","red"),
-                                                             SLA=c("gray90","green"),
-                                                             All.six=c("gray90","blue")),
+                                                                SLA=c("gray90","green"),
+                                                                All.six=c("gray90","blue")),
            legend=T,cex.lab=0.0001,edge.width=0.25)
 dev.off()
 
