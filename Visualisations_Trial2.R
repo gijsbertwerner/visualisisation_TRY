@@ -122,7 +122,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=1000),]
+small_dat<-dat[sample(nrow(dat),size=100),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -298,6 +298,7 @@ small_base_plot<-
 )
 
 ##Plot baseplot
+<<<<<<< HEAD
 Sys.time()
 pdf(file="./small_35k_spec_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
@@ -350,6 +351,8 @@ dev.off()
 Sys.time()
 
 #Baseplot with categorical trait numbers
+=======
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 Sys.time()
 pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
@@ -590,8 +593,13 @@ Sys.time()
 
 #Baseplot with log ASR
 Sys.time()
+<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+=======
+pdf(file="./small_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -600,7 +608,11 @@ trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols 
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+<<<<<<< HEAD
            edge.color = viridis(100)[cut(intermediate_tree_rec_num_log[match(intermediate_tree$edge[,1],names(intermediate_tree_rec_num_log[,1])),1],breaks=100)])
+=======
+           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
@@ -608,8 +620,13 @@ Sys.time()
 
 #Baseplot with absolute ASR
 Sys.time()
+<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+=======
+pdf(file="./small_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -618,15 +635,24 @@ trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols 
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+<<<<<<< HEAD
            edge.color = viridis(100)[cut(intermediate_tree_rec_num[match(intermediate_tree$edge[,1],names(intermediate_tree_rec_num[,1])),1],breaks=100)])
+=======
+           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
 
 #Baseplot with categorical trait numbers
 Sys.time()
+<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+=======
+pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -635,8 +661,13 @@ trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols 
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+<<<<<<< HEAD
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_intermediate_tree_trait_num_bins_ARD_vec[
              match(intermediate_tree$edge[,1],names(ASR_intermediate_tree_trait_num_bins_ARD_vec))]])
+=======
+           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[
+             match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
@@ -644,8 +675,13 @@ Sys.time()
 
 #Baseplot with growth forms
 Sys.time()
+<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+=======
+pdf(file="./small_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -654,13 +690,18 @@ trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols 
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+<<<<<<< HEAD
            edge.color = c("lightgreen","darkgreen","brown")[ASR_intermediate_tree_gf_ARD_vec[match(intermediate_tree$edge[,1],names(ASR_intermediate_tree_gf_ARD_vec))]])
+=======
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
 
 
 
+<<<<<<< HEAD
 
 
 # Visualisation - Full ------------------------------------------------
@@ -933,3 +974,5 @@ Sys.time()
 
 
 
+=======
+>>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
