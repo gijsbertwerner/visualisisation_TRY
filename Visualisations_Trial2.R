@@ -69,6 +69,9 @@ summary(dat$Number.of.Traits)
 #NA's here represent absence, i.e. zero
 dat$Number.of.Traits<-ifelse(is.na(dat$Number.of.Traits),0,dat$Number.of.Traits)
 summary(dat$Number.of.Traits) #This looks convincing
+#Log of numbers
+dat$Log.Number.of.Traits<-ifelse(dat$Number.of.Traits>0,log(dat$Number.of.Traits),0) #I am not sure if it's appropriate to only take the log of the positive numbers
+summary(dat$Log.Number.of.Traits)
 #Break up in categories for where we want to use it. 
 dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
                                          breaks = c(-Inf,1,6,11,101,Inf),
@@ -85,4 +88,36 @@ dat$GIFT_PlantGrowthForm<-ifelse(is.na(dat$GIFT_PlantGrowthForm),"herb&shrub&tre
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 
 # Visualisation - Smallest ------------------------------------------------
+
+##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
+#Let's make some small dataset for trial code.
+set.seed(01865)
+small_dat<-dat[sample(nrow(dat),size=1000),]
+small_tree<-drop.tip(tree,
+                     tree$tip.label[!tree$tip.label %in% small_dat$match_col])
+plot.phylo(small_tree,type="f",cex = 0.15)
+small_tree
+
+##ASRs
+
+#Two potential semi-quantitative ones: 1. log of number / or numbers, or 2. bins of numbers (ordinal) 
+#A discrete one (gf)
+
+#Quantiative reconstruction, log numbers
+summary(small_dat$Log.Number.of.Traits)
+#Create vector
+small_trait_num_log<-small_dat$Log.Number.of.Traits
+names(small_trait_num_log)<-small_dat$match_col
+#For ease of plotting, order vector same order as in tree
+small_trait_num_log<-small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))]
+
+system.time(
+  small_tree_rec_num_log<-anc.recon(trait_data = small_trait_num_log,tree = small_tree)
+)
+
+#Plot the results
+plot.phylo(small_tree,type="fan",cex=0.2,
+           tip.color = viridis(100)[cut(small_trait_num_log,breaks=100)],
+           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
+nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16)
 
