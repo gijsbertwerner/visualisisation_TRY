@@ -88,6 +88,35 @@ dat <- dat %>% filter(GIFT_PlantGrowthForm!="other" | is.na(GIFT_PlantGrowthForm
 dat$GIFT_PlantGrowthForm<-ifelse(is.na(dat$GIFT_PlantGrowthForm),"herb&shrub&tree",dat$GIFT_PlantGrowthForm)
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 
+#Code presence/absence properly
+table(dat$SLA,useNA = "ifany")
+dat$SLA<-ifelse(is.na(dat$SLA),0,1)
+table(dat$SLA)
+
+table(dat$Leaf.Area,useNA = "ifany")
+dat$Leaf.Area<-ifelse(is.na(dat$Leaf.Area),0,1)
+table(dat$Leaf.Area)
+
+table(dat$Leaf.Nitrogen.Content.Per.Dry.Mass,useNA = "ifany")
+dat$Leaf.Nitrogen.Content.Per.Dry.Mass<-ifelse(is.na(dat$Leaf.Nitrogen.Content.Per.Dry.Mass),0,1)
+table(dat$Leaf.Nitrogen.Content.Per.Dry.Mass)
+
+table(dat$Seed.Dry.Mass,useNA = "ifany")
+dat$Seed.Dry.Mass<-ifelse(is.na(dat$Seed.Dry.Mass),0,1)
+table(dat$Seed.Dry.Mass)
+
+table(dat$Plant.Height,useNA = "ifany")
+dat$Plant.Height<-ifelse(is.na(dat$Plant.Height),0,1)
+table(dat$Plant.Height)
+
+table(dat$Stem.Specific.Density..SSD.,useNA = "ifany")
+dat$Stem.Specific.Density..SSD.<-ifelse(is.na(dat$Stem.Specific.Density..SSD.),0,1)
+table(dat$Stem.Specific.Density..SSD.)
+
+table(dat$All.six.traits..Diaz.et.al.2016.,useNA = "ifany")
+dat$All.six.traits..Diaz.et.al.2016.<-ifelse(is.na(dat$All.six.traits..Diaz.et.al.2016.),0,1)
+table(dat$All.six.traits..Diaz.et.al.2016.)
+
 # Visualisation - Smallest ------------------------------------------------
 
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
@@ -210,4 +239,34 @@ plot.phylo(small_tree,type="f",cex=1)
 nodelabels(pie = small_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
 
 
+####Combine everything (for potential combinations)
+names(small_dat)
+small_dat_plotting_traits <- small_dat %>% select(trait_num_bins,
+                                                Leaf.Area,
+                                                SLA,
+                                                Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                Seed.Dry.Mass,
+                                                Plant.Height,
+                                                Stem.Specific.Density..SSD.,
+                                                All.six.traits..Diaz.et.al.2016.)
+head(small_dat_plotting_traits)
+names(small_dat_plotting_traits)[1]<-"Presence"
+names(small_dat_plotting_traits)[4]<-"Leaf.N"
+names(small_dat_plotting_traits)[7]<-"SSD"
+names(small_dat_plotting_traits)[8]<-"All_Diaz"
+rownames(small_dat_plotting_traits)<-small_dat$match_col
+
+#RColorbrewer 9-class Set3, seelction
+system.time(
+small_base_plot<-
+  trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                   Leaf.Area=c("gray90","#8dd3c7"),
+                                                                   SLA=c("gray90","#bebada"),
+                                                                   Leaf.N=c("gray90","#fb8072"),
+                                                                   Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                   Plant.Height=c("gray90","#fdb462"),
+                                                                   SSD=c("gray90","#b3de69"),
+                                                                   All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
+)
 
