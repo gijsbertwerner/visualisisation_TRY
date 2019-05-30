@@ -46,7 +46,7 @@ length(which(dat$match_col %in% tree$tip.label))
 length(which(tree$tip.label %in% dat$match_col))
 ```
 
-This looks mostly good, but there are 142 species without two-match. I think it's spelling things. I will drop them. There's one more thing that is a bit odd. If we look at the TRY_AccSpeciesID column which indicates the TRY species this has been matched to we see quite a lot of duplicates, indicating that multiple phylogeny tips are matched to the smae TRY species. This makes some sense given that quite some of the mega-phylogeny tips are spelling error duplicates, but let's have a look at the numbers. 
+This looks mostly good, but there are 142 species without two-way match. I think it's spelling things. I will drop them. There's one more thing that is a bit odd. If we look at the TRY_AccSpeciesID column which indicates the TRY species this has been matched to we see quite a lot of duplicates, indicating that multiple phylogeny tips are matched to the smae TRY species. This makes some sense given that quite some of the mega-phylogeny tips are spelling error duplicates, but let's have a look at the numbers. 
 
 ```{r}
 length(which(duplicated(dat$TRY_AccSpeciesID)))
@@ -61,7 +61,7 @@ Given that our purpose is visualisation, and not 'real' analysis this will proba
 
 Essentially, we have (i) a bunch of different binary data, e.g. Any data, specific traits (SLA), the six Diaz traits and (ii) quantitative, i.e. number of data. The latter can also represent the former, given that the absence of data just means a 0 on a continous scale. 
 
-I will randomly selected 75 tips/rows to higlight some combinations of options. The reason I am not immediately going into the full 350k is that rendering a figure of that size can actually takes a while (almost half an hour, on my quite fast computer), so I want to have a bit of an idea first of where we are heading. 
+I will randomly selected 75 tips/rows to higlight some combinations of options. The reason I am not immediately going into the full 350k is that rendering a figure of that size can actually takes a while (sometimes hours, even on my relatively fast computer), so I want to have a bit of an idea first of where we are heading. 
 
 A few potential directions follow. 
 
@@ -163,7 +163,7 @@ small_tree_rec_num_log_viridis<-setMap(small_tree_rec_num_log,viridis(100))
 #And with a coloured branch and bars
 plotTree.wBars(tree=small_tree_rec_num_log_viridis$tree,x = small_trait_num_log,
                method = "plotSimmap",
-               colors=small_tree_rec_num_viridis$cols
+               colors=small_tree_rec_num_log_viridis$cols,
                fsize=c(0,1),type="fan",border="white",
                col = viridis(100)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
                                                  breaks = 100))])
