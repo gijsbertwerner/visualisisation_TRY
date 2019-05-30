@@ -122,7 +122,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=1000),]
+small_dat<-dat[sample(nrow(dat),size=100),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -218,13 +218,30 @@ small_tree_trait_num_bins_ER$AICc
 small_tree_trait_num_bins_SYM$AICc
 small_tree_trait_num_bins_ARD$AICc
 
-plot.phylo(small_tree,type="f",cex=1,
+#Plot with pies
+plot.phylo(small_tree,type="f",cex=0.25,
            tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
 nodelabels(pie = small_tree_trait_num_bins_ARD$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
 
-#Think will try only ARD
+ASR_small_tree_trait_num_bins_ARD_vec<-apply(small_tree_trait_num_bins_ARD$states,1,which.max)
+names(ASR_small_tree_trait_num_bins_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
+#Plot with colours
+plot.phylo(small_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins],
+           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+
+#I will use only ARD
 
 #Now growth form
+
+table(small_dat$GIFT_PlantGrowthForm)
+#Create vector
+small_gf<-small_dat$GIFT_PlantGrowthForm
+names(small_gf)<-small_dat$match_col
+#For ease of plotting, order vector same order as in tree
+small_gf<-small_gf[match(small_tree$tip.label,names(small_gf))]
+table(small_gf)
+
 table(small_dat$GIFT_PlantGrowthForm)
 small_dat_gf <- small_dat %>% select(match_col,GIFT_PlantGrowthForm)
 table(small_dat_gf$GIFT_PlantGrowthForm)
@@ -235,8 +252,16 @@ system.time(
                                          verbose = T)
 )
 
+#Plot with nodes
 plot.phylo(small_tree,type="f",cex=1)
 nodelabels(pie = small_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+
+ASR_small_tree_gf_ARD_vec<-apply(small_tree_gf_ARD$states,1,which.max)
+names(ASR_small_tree_gf_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
+#Plot with colours
+plot.phylo(small_tree,type="f",cex=0.25,
+           tip.color = c("lightgreen","darkgreen","brown")[small_gf],
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
 
 
 ####Combine everything (for potential combinations)
@@ -272,6 +297,7 @@ small_base_plot<-
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 )
 
+##Plot baseplot
 Sys.time()
 pdf(file="./small_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
@@ -286,5 +312,78 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
+
+
+#Baseplot with log ASR
+Sys.time()
+pdf(file="./small_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
+
+dev.off()
+Sys.time()
+
+
+#Baseplot with absolute ASR
+Sys.time()
+pdf(file="./small_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
+
+dev.off()
+Sys.time()
+
+#Baseplot with categorical trait numbers
+Sys.time()
+pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[
+             match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+
+dev.off()
+Sys.time()
+
+
+#Baseplot with growth forms
+Sys.time()
+pdf(file="./small_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
+
+dev.off()
+Sys.time()
+
 
 
