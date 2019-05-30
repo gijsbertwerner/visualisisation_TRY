@@ -15,6 +15,8 @@ library(corHMM)
 
 #####Data reading
 
+# Data reading ------------------------------------------------------------
+
 #Read the tree
 tree<-read.tree("./Data/v0.1/ALLMB.tre")
 tree
@@ -33,7 +35,8 @@ head(dat_gf)
 nrow(dat_gf) #Data not present for all tree tips, about 150k fewer. All missing ones treat as NA?
 
 
-##Have a look at the data
+
+# Data formatting ---------------------------------------------------------
 
 #We'll use ALLMB_OrigSpecies for matching. 
 dat$match_col<-gsub(pattern=" ","_",dat$ALLMB_OrigSpecies)
@@ -59,3 +62,7 @@ table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 #Ok, this looks all good
 rm(dat_gf)
 gc()
+
+
+# Visualisation - Smallest ------------------------------------------------
+
