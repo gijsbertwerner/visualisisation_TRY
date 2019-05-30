@@ -13,6 +13,7 @@ library(viridis)
 library(diversitree)
 library(corHMM)
 library(Rphylopars)
+library(geiger)
 
 #####Data reading
 
@@ -119,5 +120,53 @@ system.time(
 plot.phylo(small_tree,type="fan",cex=0.2,
            tip.color = viridis(100)[cut(small_trait_num_log,breaks=100)],
            edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
-nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16)
+nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
 
+#So this models num trait = 0, as the same as num-trait = 1. 
+
+#Quantiative reconstruction, absolute numbers
+summary(small_dat$Number.of.Traits)
+#Create vector
+small_trait_num<-small_dat$Number.of.Traits
+names(small_trait_num)<-small_dat$match_col
+#For ease of plotting, order vector same order as in tree
+small_trait_num<-small_trait_num[match(small_tree$tip.label,names(small_trait_num))]
+
+system.time(
+  small_tree_rec_num<-anc.recon(trait_data = small_trait_num,tree = small_tree)
+)
+
+#Plot the results
+plot.phylo(small_tree,type="fan",cex=0.2,
+           tip.color = viridis(100)[cut(small_trait_num,breaks=100)],
+           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
+nodelabels(col=viridis(100)[cut(small_tree_rec_num[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
+
+#This retains the distinction between absence and number of traits = 1, but you can't actually see it really. 
+
+#Bins reconstructed, ordinal
+table(small_dat$trait_num_bins)
+#Create vector
+small_trait_num_bins<-small_dat$trait_num_bins
+names(small_trait_num_bins)<-small_dat$match_col
+#For ease of plotting, order vector same order as in tree
+small_trait_num_bins<-small_trait_num_bins[match(small_tree$tip.label,names(small_trait_num_bins))]
+table(small_trait_num_bins)
+
+#Model as an ordered character using meristic in fitDiscrete 
+system.time(
+small_tree_trait_num_bins_meristic<-fitDiscrete(phy = small_tree,dat=small_trait_num_bins,
+                                                model = "meristic")
+) #Only works with a bifurcating tree
+
+#Do it using raydisc (Note if wanted to do could constraint rate matrix so that this becomes ordered)
+small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
+table(small_dat_trait_num_bins$trait_num_bins)
+
+system.time(
+small_tree_trait_num_bins_ER<-rayDISC(phy = small_dat,data = small_dat_trait_num_bins,ntraits = 1,
+                                      model="ER",node.states = "marginal",root.p="yang",
+                                      verbose = T,lewis.asc.bias = T)
+)
+
+system.time(small_trait_num_bins)
