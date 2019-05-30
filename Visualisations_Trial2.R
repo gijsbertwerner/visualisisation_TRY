@@ -152,6 +152,8 @@ names(small_trait_num_bins)<-small_dat$match_col
 #For ease of plotting, order vector same order as in tree
 small_trait_num_bins<-small_trait_num_bins[match(small_tree$tip.label,names(small_trait_num_bins))]
 table(small_trait_num_bins)
+
+#turn tree into bifurcating one
 small_tree_bifurc<-multi2di(small_tree)
 
 ####Model as an (ordered) character 
@@ -187,10 +189,25 @@ small_tree_trait_num_bins_ER$AICc
 small_tree_trait_num_bins_SYM$AICc
 small_tree_trait_num_bins_ARD$AICc
 
-plot.phylo(small_tree,type="p",cex=1,
+plot.phylo(small_tree,type="f",cex=1,
            tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
 nodelabels(pie = small_tree_trait_num_bins_ARD$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
 
 #Think will try only ARD
+
+#Now growth form
+table(small_dat$GIFT_PlantGrowthForm)
+small_dat_gf <- small_dat %>% select(match_col,GIFT_PlantGrowthForm)
+table(small_dat_gf$GIFT_PlantGrowthForm)
+
+system.time(
+  small_tree_gf_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_gf,ntraits = 1,
+                                         model="ARD",node.states = "marginal",root.p="yang",
+                                         verbose = T)
+)
+
+plot.phylo(small_tree,type="f",cex=1)
+nodelabels(pie = small_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+
 
 
