@@ -164,9 +164,9 @@ small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
 table(small_dat_trait_num_bins$trait_num_bins)
 
 system.time(
-small_tree_trait_num_bins_ER<-rayDISC(phy = small_dat,data = small_dat_trait_num_bins,ntraits = 1,
+small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree,data = small_dat_trait_num_bins,ntraits = 1,
                                       model="ER",node.states = "marginal",root.p="yang",
-                                      verbose = T,lewis.asc.bias = T)
+                                      verbose = T)
 )
 
-system.time(small_trait_num_bins)
+
