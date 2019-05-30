@@ -148,7 +148,7 @@ small_tree_rec_num_log_viridis<-setMap(small_tree_rec_num_log,viridis(100))
 #And with a coloured branch and bars
 plotTree.wBars(tree=small_tree_rec_num_log_viridis$tree,x = small_trait_num_log,
                method = "plotSimmap",
-               colors=small_tree_rec_num_viridis$cols,
+               colors=small_tree_rec_num_log_viridis$cols,
                fsize=c(0,1),type="fan",border="white",
                col = viridis(100)[as.numeric(cut(small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))],
                                                  breaks = 100))])
@@ -196,12 +196,33 @@ trait_num<-dat_plot$Number.of.Traits
 names(trait_num)<-dat_plot$match_col
 trait_num[is.na(trait_num)]<-0 #Because NA means 0 traits here
 trait_num_log<-ifelse(trait_num>0,log(trait_num),0)
+summary(trait_num_log)
+trait_num_log_absent_negative<-ifelse(trait_num>0,log(trait_num),-0.5) #Another potential way of highlighting the absences
+summary(trait_num_log_absent_negative) 
 
-pdf("./Trial_full_number_bars_all_around.pdf")
-plotTree.wBars(tree_plot,x = trait_num_log,border="white",type="fan",
-               col = viridis(250)[as.numeric(cut(trait_num_log[match(tree_plot$tip.label,names(trait_num_log))],
+# pdf("./Trial_full_number_bars_all_around.pdf")
+# plotTree.wBars(tree_plot,x = trait_num_log,border="white",type="fan",
+#                col = viridis(250)[as.numeric(cut(trait_num_log[match(tree_plot$tip.label,names(trait_num_log))],
+#                                                  breaks = 250))])
+# add.color.bar(100,viridis(250),title = "Trait # (natural log)",prompt = F,
+#               lims = c(min(trait_num_log),max(trait_num_log)),
+#               x=-185,y=-185)
+# dev.off()
+
+#Takes to long
+
+set.seed(01865)
+trait_num_log_sample<-sample(trait_num_log,50000)
+summary(trait_num_log_sample)
+
+tree_plot_sample<-drop.tip(phy = tree_plot,tip = tree_plot$tip.label[!tree_plot$tip.label %in% names(trait_num_log_sample)])
+tree_plot_sample
+
+pdf("./Trial_50k_number_bars_all_around.pdf")
+plotTree.wBars(tree_plot_sample,x = trait_num_log_sample,border="white",type="fan",
+               col = viridis(250)[as.numeric(cut(trait_num_log_sample[match(tree_plot_sample$tip.label,names(trait_num_log_sample))],
                                                  breaks = 250))])
 add.color.bar(100,viridis(250),title = "Trait # (natural log)",prompt = F,
-              lims = c(min(trait_num_log),max(trait_num_log)),
+              lims = c(min(trait_num_log_sample),max(trait_num_log_sample)),
               x=-185,y=-185)
 dev.off()
