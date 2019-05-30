@@ -93,7 +93,7 @@ table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=1000),]
+small_dat<-dat[sample(nrow(dat),size=100),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -152,6 +152,7 @@ names(small_trait_num_bins)<-small_dat$match_col
 #For ease of plotting, order vector same order as in tree
 small_trait_num_bins<-small_trait_num_bins[match(small_tree$tip.label,names(small_trait_num_bins))]
 table(small_trait_num_bins)
+small_tree_bifurc<-multi2di(small_tree)
 
 #Model as an ordered character using meristic in fitDiscrete 
 system.time(
@@ -164,9 +165,28 @@ small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
 table(small_dat_trait_num_bins$trait_num_bins)
 
 system.time(
-small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree,data = small_dat_trait_num_bins,ntraits = 1,
+small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
                                       model="ER",node.states = "marginal",root.p="yang",
                                       verbose = T)
 )
 
+system.time(
+  small_tree_trait_num_bins_SYM<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
+                                        model="SYM",node.states = "marginal",root.p="yang",
+                                        verbose = T)
+)
 
+system.time(
+  small_tree_trait_num_bins_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
+                                        model="ARD",node.states = "marginal",root.p="yang",
+                                        verbose = T)
+)
+
+small_tree_trait_num_bins_ER$AICc
+small_tree_trait_num_bins_SYM$AICc
+small_tree_trait_num_bins_ARD$AICc
+
+plot.phylo(small_tree,type="p",cex=1,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
+nodelabels(pie = small_tree_trait_num_bins_ER$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
+plotRECON(small_tree_trait_num_bins_ER$phy,likelihoods = small_tree_trait_num_bins_ER$states)
