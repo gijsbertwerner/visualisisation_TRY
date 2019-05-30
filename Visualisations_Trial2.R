@@ -80,6 +80,9 @@ table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 dat$GIFT_PlantGrowthForm<-gsub(pattern="/","&",dat$GIFT_PlantGrowthForm) #We do this so that with the quantitative reconstruction they will be properly read as being uknown
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 dat %>% filter(GIFT_PlantGrowthForm=="other") #Drop the 'others' to limit computation -> Discuss with Jens
-dat <- dat %>% filter(!GIFT_PlantGrowthForm=="other")
+dat <- dat %>% filter(GIFT_PlantGrowthForm!="other" | is.na(GIFT_PlantGrowthForm))
+dat$GIFT_PlantGrowthForm<-ifelse(is.na(dat$GIFT_PlantGrowthForm),"herb&shrub&tree",dat$GIFT_PlantGrowthForm)
+table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 
 # Visualisation - Smallest ------------------------------------------------
+
