@@ -177,7 +177,7 @@ analysis_start<-Sys.time()
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-trial_dat<-dat[sample(nrow(dat),size=2500),]
+trial_dat<-dat[sample(nrow(dat),size=1000),]
 trial_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% trial_dat$match_col])
 plot.phylo(trial_tree,type="f",cex = 0.15)
