@@ -6,3 +6,5 @@ packrat/lib*/
 packrat/src/
 *.html
 *.pdf
+Models/*
+Figures/*
