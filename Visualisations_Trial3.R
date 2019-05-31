@@ -471,7 +471,6 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_trial_tree_trait_num_bins_SRD_vec[
              match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_SRD_vec))]])
-
 dev.off()
 Sys.time()
 gc()
@@ -531,3 +530,4 @@ Sys.time()
 gc()
 
 save.image()
+
