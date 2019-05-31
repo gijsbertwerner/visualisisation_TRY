@@ -77,15 +77,19 @@ summary(dat$Log.Number.of.Traits)
 #Break up in categories for where we want to use it. 
 dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
                                          breaks = c(-Inf,1,6,11,101,Inf),
-                                         labels = c("Absence","# 1-5","# 6-10","# 11-100","# > 100"),right=F))
+                                         labels = c("Absence","Trait# 1-5","Trait# 6-10","Trait# 11-100","Trait# > 100"),right=F))
 table(dat$trait_num_bins)
 
 #Create the proper categories for GF
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 dat$GIFT_PlantGrowthForm<-gsub(pattern="/","&",dat$GIFT_PlantGrowthForm) #We do this so that with the quantitative reconstruction they will be properly read as being uknown, when using rayDISC in the corHMM package
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
+
 dat %>% filter(GIFT_PlantGrowthForm=="other") #Drop the 'others' to limit computation -> Discuss with Jens
 dat <- dat %>% filter(GIFT_PlantGrowthForm!="other" | is.na(GIFT_PlantGrowthForm))
+tree<-drop.tip(tree,tree$tip.label[!tree$tip.label %in% dat$match_col])
+tree
+
 dat$GIFT_PlantGrowthForm<-ifelse(is.na(dat$GIFT_PlantGrowthForm),"herb&shrub&tree",dat$GIFT_PlantGrowthForm)
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 
@@ -123,7 +127,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=10),]
+small_dat<-dat[sample(nrow(dat),size=25),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -147,7 +151,7 @@ system.time(
 )
 
 #Plot the results
-plot.phylo(small_tree,type="fan",cex=0.2,
+plot.phylo(small_tree,type="fan",cex=0.5,
            tip.color = viridis(100)[cut(small_trait_num_log,breaks=100)],
            edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
 nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
@@ -167,7 +171,7 @@ system.time(
 )
 
 #Plot the results
-plot.phylo(small_tree,type="fan",cex=0.2,
+plot.phylo(small_tree,type="fan",cex=0.5,
            tip.color = viridis(100)[cut(small_trait_num,breaks=100)],
            edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
 nodelabels(col=viridis(100)[cut(small_tree_rec_num[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
@@ -198,40 +202,56 @@ small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
 table(small_dat_trait_num_bins$trait_num_bins)
 
 system.time(
-  small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                        model="ER",node.states = "marginal",root.p="yang",
-                                        verbose = T)
-)
-
-system.time(
-  small_tree_trait_num_bins_SYM<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                         model="SYM",node.states = "marginal",root.p="yang",
-                                         verbose = T)
-)
-
-system.time(
   small_tree_trait_num_bins_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
                                          model="ARD",node.states = "marginal",root.p="yang",
                                          verbose = T)
 )
 
-small_tree_trait_num_bins_ER$AICc
-small_tree_trait_num_bins_SYM$AICc
-small_tree_trait_num_bins_ARD$AICc
+##Now trials with castor
+
+#ARD
+mapped_small_trait_num_bins<-map_to_state_space(raw_states = small_trait_num_bins)
+system.time(
+  small_tree_trait_num_bins_ARD<-
+    asr_mk_model(tree = small_tree,Nstates = 5,tip_states = mapped_small_trait_num_bins$mapped_states,
+             rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+)
+
+small_tree_trait_num_bins_ARD
 
 #Plot with pies
 plot.phylo(small_tree,type="f",cex=0.25,
            tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
-nodelabels(pie = small_tree_trait_num_bins_ARD$states,piecol = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90"),cex=0.25)
+nodelabels(pie = small_tree_trait_num_bins_ARD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
 
-ASR_small_tree_trait_num_bins_ARD_vec<-apply(small_tree_trait_num_bins_ARD$states,1,which.max)
-names(ASR_small_tree_trait_num_bins_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
 #Plot with colours
+ASR_small_tree_trait_num_bins_ARD_vec<-apply(small_tree_trait_num_bins_ARD$ancestral_likelihoods,1,which.max)
+names(ASR_small_tree_trait_num_bins_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
 plot.phylo(small_tree,type="f",cex=0.25,
            tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins],
-           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_small_tree_trait_num_bins_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
 
-#I will use only ARD
+#SRD
+system.time(
+  small_tree_trait_num_bins_SRD<-
+    asr_mk_model(tree = small_tree,Nstates = 5,tip_states = mapped_small_trait_num_bins$mapped_states,
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+)
+
+small_tree_trait_num_bins_SRD
+
+#Plot with pies
+plot.phylo(small_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
+nodelabels(pie = small_tree_trait_num_bins_SRD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
+
+#Plot with colours
+ASR_small_tree_trait_num_bins_SRD_vec<-apply(small_tree_trait_num_bins_SRD$ancestral_likelihoods,1,which.max)
+names(ASR_small_tree_trait_num_bins_SRD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
+plot.phylo(small_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins],
+           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_small_tree_trait_num_bins_SRD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_SRD_vec))]])
+
 
 #Now growth form
 
