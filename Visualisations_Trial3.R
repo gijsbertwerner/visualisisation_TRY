@@ -93,6 +93,57 @@ tree
 dat$GIFT_PlantGrowthForm<-ifelse(is.na(dat$GIFT_PlantGrowthForm),"herb&shrub&tree",dat$GIFT_PlantGrowthForm)
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany") #Discuss this strategy with Jens
 
+#See help function of ?asr_mk_model
+#Generate tip state pror based on these.
+#Let's code herb as state 1, shrub as state 2 and tree as state 3
+dat$state1_herb<-NA
+dat$state2_shrub<-NA
+dat$state3_tree<-NA
+
+#For those were all possible, model as if all states are equally likely
+
+#Model the herb onlies
+for(i in 1:nrow(dat)){
+  if(dat$GIFT_PlantGrowthForm[i]=="herb"){
+    dat$state1_herb[i]<-1
+    dat$state2_shrub[i]<-0
+    dat$state3_tree[i]<-0
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="herb&shrub"){
+    dat$state1_herb[i]<-1/2
+    dat$state2_shrub[i]<-1/2
+    dat$state3_tree[i]<-0
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="herb&shrub&tree"){
+    dat$state1_herb[i]<-1/3
+    dat$state2_shrub[i]<-1/3
+    dat$state3_tree[i]<-1/3
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="herb&tree"){
+    dat$state1_herb[i]<-1/2
+    dat$state2_shrub[i]<-0
+    dat$state3_tree[i]<-1/1
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="shrub"){
+    dat$state1_herb[i]<-0
+    dat$state2_shrub[i]<-1
+    dat$state3_tree[i]<-0
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="shrub&tree"){
+    dat$state1_herb[i]<-0
+    dat$state2_shrub[i]<-1/2
+    dat$state3_tree[i]<-1/2
+  }
+  if(dat$GIFT_PlantGrowthForm[i]=="tree"){
+    dat$state1_herb[i]<-0
+    dat$state2_shrub[i]<-0
+    dat$state3_tree[i]<-1
+  }
+}
+
+head(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
+tail(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
+
 #Code presence/absence properly
 table(dat$SLA,useNA = "ifany")
 dat$SLA<-ifelse(is.na(dat$SLA),0,1)
@@ -122,174 +173,154 @@ table(dat$All.six.traits..Diaz.et.al.2016.,useNA = "ifany")
 dat$All.six.traits..Diaz.et.al.2016.<-ifelse(is.na(dat$All.six.traits..Diaz.et.al.2016.),0,1)
 table(dat$All.six.traits..Diaz.et.al.2016.)
 
-# Visualisation - Smallest ------------------------------------------------
+# Visualisation - Trial  ------------------------------------------------
 
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=25),]
-small_tree<-drop.tip(tree,
-                     tree$tip.label[!tree$tip.label %in% small_dat$match_col])
-plot.phylo(small_tree,type="f",cex = 0.15)
-small_tree
+trial_dat<-dat[sample(nrow(dat),size=250),]
+trial_tree<-drop.tip(tree,
+                     tree$tip.label[!tree$tip.label %in% trial_dat$match_col])
+plot.phylo(trial_tree,type="f",cex = 0.15)
+trial_tree
 
 ##ASRs
 
-#Two potential semi-quantitative ones: 1. log of number / or numbers, or 2. bins of numbers (ordinal) 
+#Two potential semi-quantitative ones: 1. log of number / or absolute numbers, or 2. bins of numbers (ordinal) 
 #A discrete one (gf)
 
 ####Quantiative reconstruction, log numbers
-summary(small_dat$Log.Number.of.Traits)
+summary(trial_dat$Log.Number.of.Traits)
 #Create vector
-small_trait_num_log<-small_dat$Log.Number.of.Traits
-names(small_trait_num_log)<-small_dat$match_col
+trial_trait_num_log<-trial_dat$Log.Number.of.Traits
+names(trial_trait_num_log)<-trial_dat$match_col
 #For ease of plotting, order vector same order as in tree
-small_trait_num_log<-small_trait_num_log[match(small_tree$tip.label,names(small_trait_num_log))]
+trial_trait_num_log<-trial_trait_num_log[match(trial_tree$tip.label,names(trial_trait_num_log))]
 
 system.time(
-  small_tree_rec_num_log<-anc.recon(trait_data = small_trait_num_log,tree = small_tree)
+  trial_tree_rec_num_log<-anc.recon(trait_data = trial_trait_num_log,tree = trial_tree)
 )
 
 #Plot the results
-plot.phylo(small_tree,type="fan",cex=0.5,
-           tip.color = viridis(100)[cut(small_trait_num_log,breaks=100)],
-           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
-nodelabels(col=viridis(100)[cut(small_tree_rec_num_log[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
-
-#So this models num trait = 0, as the same as num-trait = 1. 
+plot.phylo(trial_tree,type="fan",cex=0.5,
+           tip.color = viridis(100)[cut(trial_trait_num_log,breaks=100)],
+           edge.color = viridis(100)[cut(trial_tree_rec_num_log[match(trial_tree$edge[,1],names(trial_tree_rec_num_log[,1])),1],breaks=100)])
+nodelabels(col=viridis(100)[cut(trial_tree_rec_num_log[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
+gc()
 
 ###Quantiative reconstruction, absolute numbers
-summary(small_dat$Number.of.Traits)
+summary(trial_dat$Number.of.Traits)
 #Create vector
-small_trait_num<-small_dat$Number.of.Traits
-names(small_trait_num)<-small_dat$match_col
+trial_trait_num<-trial_dat$Number.of.Traits
+names(trial_trait_num)<-trial_dat$match_col
 #For ease of plotting, order vector same order as in tree
-small_trait_num<-small_trait_num[match(small_tree$tip.label,names(small_trait_num))]
+trial_trait_num<-trial_trait_num[match(trial_tree$tip.label,names(trial_trait_num))]
 
 system.time(
-  small_tree_rec_num<-anc.recon(trait_data = small_trait_num,tree = small_tree)
+  trial_tree_rec_num<-anc.recon(trait_data = trial_trait_num,tree = trial_tree)
 )
 
 #Plot the results
-plot.phylo(small_tree,type="fan",cex=0.5,
-           tip.color = viridis(100)[cut(small_trait_num,breaks=100)],
-           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
-nodelabels(col=viridis(100)[cut(small_tree_rec_num[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
-
-#This retains the distinction between absence and number of traits = 1, but you can't actually see it really. 
+plot.phylo(trial_tree,type="fan",cex=0.5,
+           tip.color = viridis(100)[cut(trial_trait_num,breaks=100)],
+           edge.color = viridis(100)[cut(trial_tree_rec_num[match(trial_tree$edge[,1],names(trial_tree_rec_num[,1])),1],breaks=100)])
+nodelabels(col=viridis(100)[cut(trial_tree_rec_num[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
+gc()
 
 #Bins reconstructed, ordinal
-table(small_dat$trait_num_bins)
+table(trial_dat$trait_num_bins)
 #Create vector
-small_trait_num_bins<-small_dat$trait_num_bins
-names(small_trait_num_bins)<-small_dat$match_col
+trial_trait_num_bins<-trial_dat$trait_num_bins
+names(trial_trait_num_bins)<-trial_dat$match_col
 #For ease of plotting, order vector same order as in tree
-small_trait_num_bins<-small_trait_num_bins[match(small_tree$tip.label,names(small_trait_num_bins))]
-table(small_trait_num_bins)
+trial_trait_num_bins<-trial_trait_num_bins[match(trial_tree$tip.label,names(trial_trait_num_bins))]
+table(trial_trait_num_bins)
 
 #turn tree into bifurcating one
-small_tree_bifurc<-multi2di(small_tree)
+trial_tree_bifurc<-multi2di(trial_tree)
 
 ####Model as an (ordered) character 
-#ordered using meristic in fitDiscrete 
-system.time(
-  small_tree_trait_num_bins_meristic<-fitDiscrete(phy = small_tree,dat=small_trait_num_bins,
-                                                  model = "meristic")
-) #Only works with a bifurcating tree
-
-#Do it using raydisc (Note if wanted to do could constraint rate matrix so that this becomes ordered)
-small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
-table(small_dat_trait_num_bins$trait_num_bins)
-
-system.time(
-  small_tree_trait_num_bins_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                         model="ARD",node.states = "marginal",root.p="yang",
-                                         verbose = T)
-)
-
-##Now trials with castor
 
 #ARD
-mapped_small_trait_num_bins<-map_to_state_space(raw_states = small_trait_num_bins)
+mapped_trial_trait_num_bins<-map_to_state_space(raw_states = trial_trait_num_bins)
 system.time(
-  small_tree_trait_num_bins_ARD<-
-    asr_mk_model(tree = small_tree,Nstates = 5,tip_states = mapped_small_trait_num_bins$mapped_states,
+  trial_tree_trait_num_bins_ARD<-
+    asr_mk_model(tree = trial_tree,Nstates = 5,tip_states = mapped_trial_trait_num_bins$mapped_states,
              rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 
-small_tree_trait_num_bins_ARD
+trial_tree_trait_num_bins_ARD
 
 #Plot with pies
-plot.phylo(small_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
-nodelabels(pie = small_tree_trait_num_bins_ARD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
+plot.phylo(trial_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[trial_trait_num_bins])
+nodelabels(pie = trial_tree_trait_num_bins_ARD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
 
 #Plot with colours
-ASR_small_tree_trait_num_bins_ARD_vec<-apply(small_tree_trait_num_bins_ARD$ancestral_likelihoods,1,which.max)
-names(ASR_small_tree_trait_num_bins_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
-plot.phylo(small_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins],
-           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_small_tree_trait_num_bins_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+ASR_trial_tree_trait_num_bins_ARD_vec<-apply(trial_tree_trait_num_bins_ARD$ancestral_likelihoods,1,which.max)
+names(ASR_trial_tree_trait_num_bins_ARD_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
+plot.phylo(trial_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[trial_trait_num_bins],
+           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_trial_tree_trait_num_bins_ARD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_ARD_vec))]])
 
 #SRD
 system.time(
-  small_tree_trait_num_bins_SRD<-
-    asr_mk_model(tree = small_tree,Nstates = 5,tip_states = mapped_small_trait_num_bins$mapped_states,
+  trial_tree_trait_num_bins_SRD<-
+    asr_mk_model(tree = trial_tree,Nstates = 5,tip_states = mapped_trial_trait_num_bins$mapped_states,
                  rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 
-small_tree_trait_num_bins_SRD
+trial_tree_trait_num_bins_SRD
 
 #Plot with pies
-plot.phylo(small_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins])
-nodelabels(pie = small_tree_trait_num_bins_SRD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
+plot.phylo(trial_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[trial_trait_num_bins])
+nodelabels(pie = trial_tree_trait_num_bins_SRD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
 
 #Plot with colours
-ASR_small_tree_trait_num_bins_SRD_vec<-apply(small_tree_trait_num_bins_SRD$ancestral_likelihoods,1,which.max)
-names(ASR_small_tree_trait_num_bins_SRD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
-plot.phylo(small_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[small_trait_num_bins],
-           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_small_tree_trait_num_bins_SRD_vec[match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_SRD_vec))]])
+ASR_trial_tree_trait_num_bins_SRD_vec<-apply(trial_tree_trait_num_bins_SRD$ancestral_likelihoods,1,which.max)
+names(ASR_trial_tree_trait_num_bins_SRD_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
+plot.phylo(trial_tree,type="f",cex=0.25,
+           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[trial_trait_num_bins],
+           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_trial_tree_trait_num_bins_SRD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_SRD_vec))]])
 
 
-#Now growth form
-
-table(small_dat$GIFT_PlantGrowthForm)
+#####And growth form
+table(trial_dat$GIFT_PlantGrowthForm)
 #Create vector
-small_gf<-small_dat$GIFT_PlantGrowthForm
-names(small_gf)<-small_dat$match_col
+trial_gf<-trial_dat$GIFT_PlantGrowthForm
+names(trial_gf)<-trial_dat$match_col
 #For ease of plotting, order vector same order as in tree
-small_gf<-small_gf[match(small_tree$tip.label,names(small_gf))]
-table(small_gf)
+trial_gf<-trial_gf[match(trial_tree$tip.label,names(trial_gf))]
+table(trial_gf)
 
-table(small_dat$GIFT_PlantGrowthForm)
-small_dat_gf <- small_dat %>% select(match_col,GIFT_PlantGrowthForm)
-table(small_dat_gf$GIFT_PlantGrowthForm)
+table(trial_dat$GIFT_PlantGrowthForm)
+trial_dat_gf <- trial_dat %>% select(match_col,GIFT_PlantGrowthForm)
+table(trial_dat_gf$GIFT_PlantGrowthForm)
 
 system.time(
-  small_tree_gf_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_gf,ntraits = 1,
+  trial_tree_gf_ARD<-rayDISC(phy = trial_tree_bifurc,data = trial_dat_gf,ntraits = 1,
                              model="ARD",node.states = "marginal",root.p="yang",
                              verbose = T)
 )
 
 #Plot with nodes
-plot.phylo(small_tree,type="f",cex=1)
-nodelabels(pie = small_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+plot.phylo(trial_tree,type="f",cex=1)
+nodelabels(pie = trial_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
 
-ASR_small_tree_gf_ARD_vec<-apply(small_tree_gf_ARD$states,1,which.max)
-names(ASR_small_tree_gf_ARD_vec)<-1:small_tree$Nnode+Ntip(small_tree)
+ASR_trial_tree_gf_ARD_vec<-apply(trial_tree_gf_ARD$states,1,which.max)
+names(ASR_trial_tree_gf_ARD_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
 #Plot with colours
-plot.phylo(small_tree,type="f",cex=0.25,
-           tip.color = c("lightgreen","darkgreen","brown")[small_gf],
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
+plot.phylo(trial_tree,type="f",cex=0.25,
+           tip.color = c("lightgreen","darkgreen","brown")[trial_gf],
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_ARD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_ARD_vec))]])
 
 
 ####Combine everything (for potential combinations)
 
 #Generate baseplot
-names(small_dat)
-small_dat_plotting_traits <- small_dat %>% select(trait_num_bins,
+names(trial_dat)
+trial_dat_plotting_traits <- trial_dat %>% select(trait_num_bins,
                                                   Leaf.Area,
                                                   SLA,
                                                   Leaf.Nitrogen.Content.Per.Dry.Mass,
@@ -297,17 +328,17 @@ small_dat_plotting_traits <- small_dat %>% select(trait_num_bins,
                                                   Plant.Height,
                                                   Stem.Specific.Density..SSD.,
                                                   All.six.traits..Diaz.et.al.2016.)
-head(small_dat_plotting_traits)
-names(small_dat_plotting_traits)[1]<-"Presence"
-names(small_dat_plotting_traits)[4]<-"Leaf.N"
-names(small_dat_plotting_traits)[7]<-"SSD"
-names(small_dat_plotting_traits)[8]<-"All_Diaz"
-rownames(small_dat_plotting_traits)<-small_dat$match_col
+head(trial_dat_plotting_traits)
+names(trial_dat_plotting_traits)[1]<-"Presence"
+names(trial_dat_plotting_traits)[4]<-"Leaf.N"
+names(trial_dat_plotting_traits)[7]<-"SSD"
+names(trial_dat_plotting_traits)[8]<-"All_Diaz"
+rownames(trial_dat_plotting_traits)<-trial_dat$match_col
 
 #RColorbrewer 9-class Set3, seelction
 system.time(
-  small_base_plot<-
-    trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+  trial_base_plot<-
+    trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                              Leaf.Area=c("gray90","#8dd3c7"),
                                                                              SLA=c("gray90","#bebada"),
                                                                              Leaf.N=c("gray90","#fb8072"),
@@ -320,8 +351,8 @@ system.time(
 
 ##Plot baseplot
 Sys.time()
-pdf(file="./small_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+pdf(file="./trial_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -337,8 +368,8 @@ Sys.time()
 
 #Baseplot with log ASR
 Sys.time()
-pdf(file="./small_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+pdf(file="./trial_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -347,7 +378,7 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
+           edge.color = viridis(100)[cut(trial_tree_rec_num_log[match(trial_tree$edge[,1],names(trial_tree_rec_num_log[,1])),1],breaks=100)])
 
 dev.off()
 Sys.time()
@@ -355,8 +386,8 @@ Sys.time()
 
 #Baseplot with absolute ASR
 Sys.time()
-pdf(file="./small_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+pdf(file="./trial_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -365,15 +396,15 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
+           edge.color = viridis(100)[cut(trial_tree_rec_num[match(trial_tree$edge[,1],names(trial_tree_rec_num[,1])),1],breaks=100)])
 
 dev.off()
 Sys.time()
 
 #Baseplot with categorical trait numbers
 Sys.time()
-pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+pdf(file="./trial_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -382,8 +413,8 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[
-             match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
+           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_trial_tree_trait_num_bins_ARD_vec[
+             match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_ARD_vec))]])
 
 dev.off()
 Sys.time()
@@ -391,8 +422,8 @@ Sys.time()
 
 #Baseplot with growth forms
 Sys.time()
-pdf(file="./small_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+pdf(file="./trial_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
                                                                          Leaf.N=c("gray90","#fb8072"),
@@ -401,7 +432,7 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_ARD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_ARD_vec))]])
 
 dev.off()
 Sys.time()
