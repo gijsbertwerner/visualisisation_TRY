@@ -101,48 +101,40 @@ dat$state2_shrub<-NA
 dat$state3_tree<-NA
 
 #For those were all possible, model as if all states are equally likely
-
-#Model the herb onlies
-for(i in 1:nrow(dat)){
-  if(dat$GIFT_PlantGrowthForm[i]=="herb"){
-    dat$state1_herb[i]<-1
-    dat$state2_shrub[i]<-0
-    dat$state3_tree[i]<-0
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="herb&shrub"){
-    dat$state1_herb[i]<-1/2
-    dat$state2_shrub[i]<-1/2
-    dat$state3_tree[i]<-0
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="herb&shrub&tree"){
-    dat$state1_herb[i]<-1/3
-    dat$state2_shrub[i]<-1/3
-    dat$state3_tree[i]<-1/3
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="herb&tree"){
-    dat$state1_herb[i]<-1/2
-    dat$state2_shrub[i]<-0
-    dat$state3_tree[i]<-1/1
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="shrub"){
-    dat$state1_herb[i]<-0
-    dat$state2_shrub[i]<-1
-    dat$state3_tree[i]<-0
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="shrub&tree"){
-    dat$state1_herb[i]<-0
-    dat$state2_shrub[i]<-1/2
-    dat$state3_tree[i]<-1/2
-  }
-  if(dat$GIFT_PlantGrowthForm[i]=="tree"){
-    dat$state1_herb[i]<-0
-    dat$state2_shrub[i]<-0
-    dat$state3_tree[i]<-1
-  }
-}
-
+dat<-
+  dat %>% mutate(
+  state1_herb = case_when(
+    GIFT_PlantGrowthForm=="herb" ~ 1,
+    GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
+    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+    GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
+    GIFT_PlantGrowthForm=="shrub" ~ 0,
+    GIFT_PlantGrowthForm=="shrub&tree" ~ 0,
+    GIFT_PlantGrowthForm=="tree" ~ 0
+  ),
+  state2_shrub = case_when(
+    GIFT_PlantGrowthForm=="herb" ~ 0,
+    GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
+    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+    GIFT_PlantGrowthForm=="herb&tree" ~ 0,
+    GIFT_PlantGrowthForm=="shrub" ~ 1,
+    GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
+    GIFT_PlantGrowthForm=="tree" ~ 0
+  ),
+  state3_tree = case_when(
+    GIFT_PlantGrowthForm=="herb" ~ 0,
+    GIFT_PlantGrowthForm=="herb&shrub" ~ 0,
+    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+    GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
+    GIFT_PlantGrowthForm=="shrub" ~ 0,
+    GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
+    GIFT_PlantGrowthForm=="tree" ~ 1
+  )
+)
 head(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
 tail(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
+dat$state1_herb+dat$state2_shrub+dat$state3_tree
+#All looks good. 
 
 #Code presence/absence properly
 table(dat$SLA,useNA = "ifany")
