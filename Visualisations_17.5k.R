@@ -380,18 +380,6 @@ names(run_17.5k_dat_plotting_traits)[8]<-"All_Diaz"
 rownames(run_17.5k_dat_plotting_traits)<-run_17.5k_dat$match_col
 
 #RColorbrewer 9-class Set3, seelction
-system.time(
-  run_17.5k_base_plot<-
-    trait.plot(tree = run_17.5k_tree,dat = run_17.5k_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                             Leaf.Area=c("gray90","#8dd3c7"),
-                                                                             SLA=c("gray90","#bebada"),
-                                                                             Leaf.N=c("gray90","#fb8072"),
-                                                                             Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                             Plant.Height=c("gray90","#fdb462"),
-                                                                             SSD=c("gray90","#b3de69"),
-                                                                             All_Diaz=c("gray90","#fccde5")),
-               legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5)
-)
 
 ##Plot baseplot
 Sys.time()
