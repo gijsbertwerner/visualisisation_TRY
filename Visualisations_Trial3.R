@@ -349,6 +349,7 @@ names(ASR_trial_tree_gf_SRD_herb_anc_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
 #Plot with colours
 plot.phylo(trial_tree,type="f",cex=0.25,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_herb_anc_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_herb_anc_vec))]])
+gc()
 
 # Plotting ----------------------------------------------------------------
 
@@ -387,7 +388,7 @@ system.time(
 
 ##Plot baseplot
 Sys.time()
-pdf(file="./trial_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
+pdf(file="./trial_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
@@ -400,11 +401,11 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
-
+gc()
 
 #Baseplot with log ASR
 Sys.time()
-pdf(file="./trial_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
+pdf(file="./trial_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
@@ -418,11 +419,11 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
-
+gc()
 
 #Baseplot with absolute ASR
 Sys.time()
-pdf(file="./trial_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
+pdf(file="./trial_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
@@ -436,10 +437,11 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
+gc()
 
 #Baseplot with categorical trait numbers
 Sys.time()
-pdf(file="./trial_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
+pdf(file="./trial_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
@@ -454,11 +456,29 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
+gc()
 
+Sys.time()
+pdf(file="./trial_trait_num_bins_ASR_SRD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_trial_tree_trait_num_bins_SRD_vec[
+             match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_SRD_vec))]])
+
+dev.off()
+Sys.time()
+gc()
 
 #Baseplot with growth forms
 Sys.time()
-pdf(file="./trial_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
+pdf(file="./trial_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
@@ -472,3 +492,42 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
 
 dev.off()
 Sys.time()
+gc()
+
+#Baseplot with growth forms
+Sys.time()
+pdf(file="./trial_gf_ASR_SRD.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_vec))]])
+
+dev.off()
+Sys.time()
+gc()
+
+#Baseplot with growth forms
+Sys.time()
+pdf(file="./trial_gf_ASR_SRD_herc_anc.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_herc_anc_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_herc_anc_vec))]])
+
+dev.off()
+Sys.time()
+gc()
+
+save.image()
