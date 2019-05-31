@@ -173,6 +173,11 @@ table(dat$All.six.traits..Diaz.et.al.2016.,useNA = "ifany")
 dat$All.six.traits..Diaz.et.al.2016.<-ifelse(is.na(dat$All.six.traits..Diaz.et.al.2016.),0,1)
 table(dat$All.six.traits..Diaz.et.al.2016.)
 
+###Write analysed tree and data to folder
+write.csv(x = dat,file = "./Data/analysed_data.csv",row.names = F)
+write.tree(phy = tree,file = "./Data/analysed_tree.tre")
+
+
 # Visualisation - Trial  ------------------------------------------------
 
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
