@@ -180,7 +180,6 @@ set.seed(01865)
 run_87.5k_dat<-dat[sample(nrow(dat),size=87500),]
 run_87.5k_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% run_87.5k_dat$match_col])
-plot.phylo(run_87.5k_tree,type="f",cex = 0.15)
 run_87.5k_tree
 
 ##ASRs
@@ -201,11 +200,6 @@ system.time(
 )
 save(run_87.5k_tree_rec_num_log,file = "./Models/run_87.5k_tree_rec_num_log")
 
-#Plot the results
-plot.phylo(run_87.5k_tree,type="fan",cex=0.5,
-           tip.color = viridis(100)[cut(run_87.5k_trait_num_log,breaks=100)],
-           edge.color = viridis(100)[cut(run_87.5k_tree_rec_num_log[match(run_87.5k_tree$edge[,1],names(run_87.5k_tree_rec_num_log[,1])),1],breaks=100)])
-nodelabels(col=viridis(100)[cut(run_87.5k_tree_rec_num_log[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
 gc()
 
 ###Quantiative reconstruction, absolute numbers
@@ -221,11 +215,6 @@ system.time(
 )
 save(run_87.5k_tree_rec_num,file = "./Models/run_87.5k_tree_rec_num")
 
-#Plot the results
-plot.phylo(run_87.5k_tree,type="fan",cex=0.5,
-           tip.color = viridis(100)[cut(run_87.5k_trait_num,breaks=100)],
-           edge.color = viridis(100)[cut(run_87.5k_tree_rec_num[match(run_87.5k_tree$edge[,1],names(run_87.5k_tree_rec_num[,1])),1],breaks=100)])
-nodelabels(col=viridis(100)[cut(run_87.5k_tree_rec_num[,1],breaks=100)],pch=16) #Probably leave this out of the eventual one. 
 gc()
 
 #Bins reconstructed, ordinal
@@ -248,17 +237,8 @@ system.time(
 )
 save(run_87.5k_tree_trait_num_bins_ARD,file="./Models/run_87.5k_tree_trait_num_bins_ARD")
 
-#Plot with pies
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[run_87.5k_trait_num_bins])
-nodelabels(pie = run_87.5k_tree_trait_num_bins_ARD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
-
-#Plot with colours
 ASR_run_87.5k_tree_trait_num_bins_ARD_vec<-apply(run_87.5k_tree_trait_num_bins_ARD$ancestral_likelihoods,1,which.max)
 names(ASR_run_87.5k_tree_trait_num_bins_ARD_vec)<-1:run_87.5k_tree$Nnode+Ntip(run_87.5k_tree)
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[run_87.5k_trait_num_bins],
-           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_run_87.5k_tree_trait_num_bins_ARD_vec[match(run_87.5k_tree$edge[,1],names(ASR_run_87.5k_tree_trait_num_bins_ARD_vec))]])
 
 #SRD
 system.time(
@@ -269,17 +249,9 @@ system.time(
 
 save(run_87.5k_tree_trait_num_bins_SRD,file="./Models/run_87.5k_tree_trait_num_bins_SRD")
 
-#Plot with pies
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[run_87.5k_trait_num_bins])
-nodelabels(pie = run_87.5k_tree_trait_num_bins_SRD$ancestral_likelihoods,piecol = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),cex=0.25)
 
-#Plot with colours
 ASR_run_87.5k_tree_trait_num_bins_SRD_vec<-apply(run_87.5k_tree_trait_num_bins_SRD$ancestral_likelihoods,1,which.max)
 names(ASR_run_87.5k_tree_trait_num_bins_SRD_vec)<-1:run_87.5k_tree$Nnode+Ntip(run_87.5k_tree)
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           tip.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[run_87.5k_trait_num_bins],
-           edge.color = c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026")[ASR_run_87.5k_tree_trait_num_bins_SRD_vec[match(run_87.5k_tree$edge[,1],names(ASR_run_87.5k_tree_trait_num_bins_SRD_vec))]])
 
 
 #####And growth form
@@ -306,15 +278,8 @@ system.time(
 )
 save(run_87.5k_tree_gf_ARD,file="./Models/run_87.5k_tree_gf_ARD")
 
-#Plot with nodes
-plot.phylo(run_87.5k_tree,type="f",cex=0.25)
-nodelabels(pie = run_87.5k_tree_gf_ARD$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
-
 ASR_run_87.5k_tree_gf_ARD_vec<-apply(run_87.5k_tree_gf_ARD$ancestral_likelihoods,1,which.max)
 names(ASR_run_87.5k_tree_gf_ARD_vec)<-1:run_87.5k_tree$Nnode+Ntip(run_87.5k_tree)
-#Plot with colours
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_87.5k_tree_gf_ARD_vec[match(run_87.5k_tree$edge[,1],names(ASR_run_87.5k_tree_gf_ARD_vec))]])
 
 #SRD
 system.time(
@@ -324,15 +289,8 @@ system.time(
 )
 save(run_87.5k_tree_gf_SRD,file="./Models/run_87.5k_tree_gf_SRD")
 
-#Plot with nodes
-plot.phylo(run_87.5k_tree,type="f",cex=0.25)
-nodelabels(pie = run_87.5k_tree_gf_SRD$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
-
 ASR_run_87.5k_tree_gf_SRD_vec<-apply(run_87.5k_tree_gf_SRD$ancestral_likelihoods,1,which.max)
 names(ASR_run_87.5k_tree_gf_SRD_vec)<-1:run_87.5k_tree$Nnode+Ntip(run_87.5k_tree)
-#Plot with colours
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_87.5k_tree_gf_SRD_vec[match(run_87.5k_tree$edge[,1],names(ASR_run_87.5k_tree_gf_SRD_vec))]])
 
 #SRD - herb ancestor
 herb_anc_vec<-c(1,0,0)
@@ -345,15 +303,8 @@ system.time(
 )
 save(run_87.5k_tree_gf_SRD_herb_anc,file="./Models/run_87.5k_tree_gf_SRD_herb_anc")
 
-#Plot with nodes
-plot.phylo(run_87.5k_tree,type="f",cex=0.25)
-nodelabels(pie = run_87.5k_tree_gf_SRD_herb_anc$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
-
 ASR_run_87.5k_tree_gf_SRD_herb_anc_vec<-apply(run_87.5k_tree_gf_SRD_herb_anc$ancestral_likelihoods,1,which.max)
 names(ASR_run_87.5k_tree_gf_SRD_herb_anc_vec)<-1:run_87.5k_tree$Nnode+Ntip(run_87.5k_tree)
-#Plot with colours
-plot.phylo(run_87.5k_tree,type="f",cex=0.25,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_87.5k_tree_gf_SRD_herb_anc_vec[match(run_87.5k_tree$edge[,1],names(ASR_run_87.5k_tree_gf_SRD_herb_anc_vec))]])
 gc()
 
 analysis_end_plot_start<-Sys.time()
