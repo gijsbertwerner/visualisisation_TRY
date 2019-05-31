@@ -170,12 +170,12 @@ write.csv(x = dat,file = "./Data/analysed_data.csv",row.names = F)
 write.tree(phy = tree,file = "./Data/analysed_tree.tre")
 
 
-# Visualisation - Trial  ------------------------------------------------
+# Analyses - Trial  ------------------------------------------------
 
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-trial_dat<-dat[sample(nrow(dat),size=250),]
+trial_dat<-dat[sample(nrow(dat),size=25),]
 trial_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% trial_dat$match_col])
 plot.phylo(trial_tree,type="f",cex = 0.15)
@@ -197,6 +197,7 @@ trial_trait_num_log<-trial_trait_num_log[match(trial_tree$tip.label,names(trial_
 system.time(
   trial_tree_rec_num_log<-anc.recon(trait_data = trial_trait_num_log,tree = trial_tree)
 )
+save(trial_tree_rec_num_log,file = "./Models/trial_tree_rec_num_log")
 
 #Plot the results
 plot.phylo(trial_tree,type="fan",cex=0.5,
@@ -216,6 +217,7 @@ trial_trait_num<-trial_trait_num[match(trial_tree$tip.label,names(trial_trait_nu
 system.time(
   trial_tree_rec_num<-anc.recon(trait_data = trial_trait_num,tree = trial_tree)
 )
+save(trial_tree_rec_num,file = "./Models/trial_tree_rec_num")
 
 #Plot the results
 plot.phylo(trial_tree,type="fan",cex=0.5,
@@ -233,9 +235,6 @@ names(trial_trait_num_bins)<-trial_dat$match_col
 trial_trait_num_bins<-trial_trait_num_bins[match(trial_tree$tip.label,names(trial_trait_num_bins))]
 table(trial_trait_num_bins)
 
-#turn tree into bifurcating one
-trial_tree_bifurc<-multi2di(trial_tree)
-
 ####Model as an (ordered) character 
 
 #ARD
@@ -245,8 +244,7 @@ system.time(
     asr_mk_model(tree = trial_tree,Nstates = 5,tip_states = mapped_trial_trait_num_bins$mapped_states,
              rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
-
-trial_tree_trait_num_bins_ARD
+save(trial_tree_trait_num_bins_ARD,file="./Models/trial_tree_trait_num_bins_ARD")
 
 #Plot with pies
 plot.phylo(trial_tree,type="f",cex=0.25,
@@ -267,7 +265,7 @@ system.time(
                  rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 
-trial_tree_trait_num_bins_SRD
+save(trial_tree_trait_num_bins_SRD,file="./Models/trial_tree_trait_num_bins_SRD")
 
 #Plot with pies
 plot.phylo(trial_tree,type="f",cex=0.25,
@@ -291,29 +289,70 @@ names(trial_gf)<-trial_dat$match_col
 trial_gf<-trial_gf[match(trial_tree$tip.label,names(trial_gf))]
 table(trial_gf)
 
-table(trial_dat$GIFT_PlantGrowthForm)
-trial_dat_gf <- trial_dat %>% select(match_col,GIFT_PlantGrowthForm)
-table(trial_dat_gf$GIFT_PlantGrowthForm)
+##Select the data matrix containint the tip priors
+trial_gf_priors<-trial_dat %>% select(match_col,state1_herb,state2_shrub,state3_tree)
+rownames(trial_gf_priors)<-trial_gf_priors$match_col
+trial_gf_priors<-trial_gf_priors[match(trial_tree$tip.label,trial_gf_priors$match_col),]
+trial_gf_priors<-as.matrix(trial_gf_priors[,2:4])
+head(trial_gf_priors)
 
+#ARD
 system.time(
-  trial_tree_gf_ARD<-rayDISC(phy = trial_tree_bifurc,data = trial_dat_gf,ntraits = 1,
-                             model="ARD",node.states = "marginal",root.p="yang",
-                             verbose = T)
+  trial_tree_gf_ARD<-
+    asr_mk_model(tree = trial_tree,Nstates = 3,tip_states = NULL,tip_priors = trial_gf_priors,
+                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
+save(trial_tree_gf_ARD,file="./Models/trial_tree_gf_ARD")
 
 #Plot with nodes
-plot.phylo(trial_tree,type="f",cex=1)
-nodelabels(pie = trial_tree_gf_ARD$states,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+plot.phylo(trial_tree,type="f",cex=0.25)
+nodelabels(pie = trial_tree_gf_ARD$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
 
-ASR_trial_tree_gf_ARD_vec<-apply(trial_tree_gf_ARD$states,1,which.max)
+ASR_trial_tree_gf_ARD_vec<-apply(trial_tree_gf_ARD$ancestral_likelihoods,1,which.max)
 names(ASR_trial_tree_gf_ARD_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
 #Plot with colours
 plot.phylo(trial_tree,type="f",cex=0.25,
-           tip.color = c("lightgreen","darkgreen","brown")[trial_gf],
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_ARD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_ARD_vec))]])
 
+#SRD
+system.time(
+  trial_tree_gf_SRD<-
+    asr_mk_model(tree = trial_tree,Nstates = 3,tip_states = NULL,tip_priors = trial_gf_priors,
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+)
+save(trial_tree_gf_SRD,file="./Models/trial_tree_gf_SRD")
 
-####Combine everything (for potential combinations)
+#Plot with nodes
+plot.phylo(trial_tree,type="f",cex=0.25)
+nodelabels(pie = trial_tree_gf_SRD$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+
+ASR_trial_tree_gf_SRD_vec<-apply(trial_tree_gf_SRD$ancestral_likelihoods,1,which.max)
+names(ASR_trial_tree_gf_SRD_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
+#Plot with colours
+plot.phylo(trial_tree,type="f",cex=0.25,
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_vec))]])
+
+#SRD - herb ancestor
+system.time(
+  trial_tree_gf_SRD_herb_anc<-
+    asr_mk_model(tree = trial_tree,Nstates = 3,tip_states = NULL,tip_priors = trial_gf_priors,root_prior = c(1,0,0),
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+)
+save(trial_tree_gf_SRD_herb_anc,file="./Models/trial_tree_gf_SRD_herb_anc")
+
+#Plot with nodes
+plot.phylo(trial_tree,type="f",cex=0.25)
+nodelabels(pie = trial_tree_gf_SRD_herb_anc$ancestral_likelihoods,piecol = c("lightgreen","darkgreen","brown"),cex=0.25)
+
+ASR_trial_tree_gf_SRD_herb_anc_vec<-apply(trial_tree_gf_SRD_herb_anc$ancestral_likelihoods,1,which.max)
+names(ASR_trial_tree_gf_SRD_herb_anc_vec)<-1:trial_tree$Nnode+Ntip(trial_tree)
+#Plot with colours
+plot.phylo(trial_tree,type="f",cex=0.25,
+           edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_herb_anc_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_herb_anc_vec))]])
+
+# Plotting ----------------------------------------------------------------
+
+####Combine everything (four potential combinations)
 
 #Generate baseplot
 names(trial_dat)
