@@ -14,6 +14,7 @@ library(diversitree)
 library(corHMM)
 library(Rphylopars)
 library(geiger)
+library(castor)
 
 #####Data reading
 
@@ -71,7 +72,7 @@ summary(dat$Number.of.Traits)
 dat$Number.of.Traits<-ifelse(is.na(dat$Number.of.Traits),0,dat$Number.of.Traits)
 summary(dat$Number.of.Traits) #This looks convincing
 #Log of numbers
-dat$Log.Number.of.Traits<-ifelse(dat$Number.of.Traits>0,log(dat$Number.of.Traits),0) #I am not sure if it's appropriate to only take the log of the positive numbers
+dat$Log.Number.of.Traits<-log(dat$Number.of.Traits+1) #Do +1 so that zero traits present becomes log(0+1) = 0. 
 summary(dat$Log.Number.of.Traits)
 #Break up in categories for where we want to use it. 
 dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
@@ -122,7 +123,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=1000),]
+small_dat<-dat[sample(nrow(dat),size=10),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -299,7 +300,7 @@ system.time(
 
 ##Plot baseplot
 Sys.time()
-pdf(file="./small_35k_spec_base_plot.pdf",width = 8.2,height = 8.2)
+pdf(file="./small_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                          Leaf.Area=c("gray90","#8dd3c7"),
                                                                          SLA=c("gray90","#bebada"),
