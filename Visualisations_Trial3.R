@@ -177,7 +177,7 @@ analysis_start<-Sys.time()
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-trial_dat<-dat[sample(nrow(dat),size=25),]
+trial_dat<-dat[sample(nrow(dat),size=1000),]
 trial_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% trial_dat$match_col])
 plot.phylo(trial_tree,type="f",cex = 0.15)
@@ -335,9 +335,12 @@ plot.phylo(trial_tree,type="f",cex=0.25,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_vec))]])
 
 #SRD - herb ancestor
+herb_anc_vec<-c(1,0,0)
+names(herb_anc_vec)<-colnames(trial_gf_priors)
+herb_anc_vec
 system.time(
   trial_tree_gf_SRD_herb_anc<-
-    asr_mk_model(tree = trial_tree,Nstates = 3,tip_states = NULL,tip_priors = trial_gf_priors,root_prior = c(1,0,0),
+    asr_mk_model(tree = trial_tree,Nstates = 3,tip_states = NULL,tip_priors = trial_gf_priors,root_prior = herb_anc_vec,
                  rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(trial_tree_gf_SRD_herb_anc,file="./Models/trial_tree_gf_SRD_herb_anc")
@@ -387,7 +390,7 @@ system.time(
                                                                              Plant.Height=c("gray90","#fdb462"),
                                                                              SSD=c("gray90","#b3de69"),
                                                                              All_Diaz=c("gray90","#fccde5")),
-               legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
+               legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5)
 )
 
 ##Plot baseplot
@@ -401,7 +404,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5)
 
 dev.off()
 Sys.time()
@@ -418,9 +421,11 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = viridis(100)[cut(trial_tree_rec_num_log[match(trial_tree$edge[,1],names(trial_tree_rec_num_log[,1])),1],breaks=100)])
-
+add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
+              lims = c(min(trial_trait_num_log),max(trial_trait_num_log)),
+              x=-165,y=-165)
 dev.off()
 Sys.time()
 gc()
@@ -436,9 +441,11 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = viridis(100)[cut(trial_tree_rec_num[match(trial_tree$edge[,1],names(trial_tree_rec_num[,1])),1],breaks=100)])
-
+add.color.bar(100,viridis(100),title = "Trait #",prompt = F,
+              lims = c(min(trial_trait_num),max(trial_trait_num)),
+              x=-165,y=-165)
 dev.off()
 Sys.time()
 gc()
@@ -454,7 +461,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_trial_tree_trait_num_bins_ARD_vec[
              match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_ARD_vec))]])
 
@@ -472,7 +479,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_trial_tree_trait_num_bins_SRD_vec[
              match(trial_tree$edge[,1],names(ASR_trial_tree_trait_num_bins_SRD_vec))]])
 dev.off()
@@ -490,7 +497,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_ARD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_ARD_vec))]])
 
 dev.off()
@@ -508,7 +515,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_vec))]])
 
 dev.off()
@@ -526,7 +533,7 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
                                                                          Plant.Height=c("gray90","#fdb462"),
                                                                          SSD=c("gray90","#b3de69"),
                                                                          All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
+           legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_trial_tree_gf_SRD_herc_anc_vec[match(trial_tree$edge[,1],names(ASR_trial_tree_gf_SRD_herc_anc_vec))]])
 
 dev.off()
