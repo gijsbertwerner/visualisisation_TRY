@@ -8,3 +8,4 @@ packrat/src/
 *.pdf
 Models/*
 Figures/*
+*.csv
