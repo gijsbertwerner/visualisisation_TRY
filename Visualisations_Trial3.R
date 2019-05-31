@@ -177,7 +177,7 @@ analysis_start<-Sys.time()
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-trial_dat<-dat[sample(nrow(dat),size=1000),]
+trial_dat<-dat[sample(nrow(dat),size=2500),]
 trial_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% trial_dat$match_col])
 plot.phylo(trial_tree,type="f",cex = 0.15)
@@ -424,8 +424,8 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
            legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = viridis(100)[cut(trial_tree_rec_num_log[match(trial_tree$edge[,1],names(trial_tree_rec_num_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
-              lims = c(min(trial_trait_num_log),max(trial_trait_num_log)),
-              x=-165,y=-165)
+              lims = c(min(trial_trait_num_log),max(trial_trait_num_log)),fsize=0.5,
+              x=-100,y=-50)
 dev.off()
 Sys.time()
 gc()
@@ -444,8 +444,8 @@ trait.plot(tree = trial_tree,dat = trial_dat_plotting_traits,cols = list(Presenc
            legend=T,cex.lab=0.0001,edge.width=0.5,cex.legend = 0.5,
            edge.color = viridis(100)[cut(trial_tree_rec_num[match(trial_tree$edge[,1],names(trial_tree_rec_num[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Trait #",prompt = F,
-              lims = c(min(trial_trait_num),max(trial_trait_num)),
-              x=-165,y=-165)
+              lims = c(min(trial_trait_num),max(trial_trait_num)),fsize=0.5,
+              x=-100,y=-50)
 dev.off()
 Sys.time()
 gc()
