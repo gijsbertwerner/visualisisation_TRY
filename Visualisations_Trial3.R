@@ -103,34 +103,34 @@ dat$state3_tree<-NA
 #For those were all possible, model as if all states are equally likely
 dat<-
   dat %>% mutate(
-  state1_herb = case_when(
-    GIFT_PlantGrowthForm=="herb" ~ 1,
-    GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
-    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
-    GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
-    GIFT_PlantGrowthForm=="shrub" ~ 0,
-    GIFT_PlantGrowthForm=="shrub&tree" ~ 0,
-    GIFT_PlantGrowthForm=="tree" ~ 0
-  ),
-  state2_shrub = case_when(
-    GIFT_PlantGrowthForm=="herb" ~ 0,
-    GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
-    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
-    GIFT_PlantGrowthForm=="herb&tree" ~ 0,
-    GIFT_PlantGrowthForm=="shrub" ~ 1,
-    GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
-    GIFT_PlantGrowthForm=="tree" ~ 0
-  ),
-  state3_tree = case_when(
-    GIFT_PlantGrowthForm=="herb" ~ 0,
-    GIFT_PlantGrowthForm=="herb&shrub" ~ 0,
-    GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
-    GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
-    GIFT_PlantGrowthForm=="shrub" ~ 0,
-    GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
-    GIFT_PlantGrowthForm=="tree" ~ 1
+    state1_herb = case_when(
+      GIFT_PlantGrowthForm=="herb" ~ 1,
+      GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
+      GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+      GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
+      GIFT_PlantGrowthForm=="shrub" ~ 0,
+      GIFT_PlantGrowthForm=="shrub&tree" ~ 0,
+      GIFT_PlantGrowthForm=="tree" ~ 0
+    ),
+    state2_shrub = case_when(
+      GIFT_PlantGrowthForm=="herb" ~ 0,
+      GIFT_PlantGrowthForm=="herb&shrub" ~ 1/2,
+      GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+      GIFT_PlantGrowthForm=="herb&tree" ~ 0,
+      GIFT_PlantGrowthForm=="shrub" ~ 1,
+      GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
+      GIFT_PlantGrowthForm=="tree" ~ 0
+    ),
+    state3_tree = case_when(
+      GIFT_PlantGrowthForm=="herb" ~ 0,
+      GIFT_PlantGrowthForm=="herb&shrub" ~ 0,
+      GIFT_PlantGrowthForm=="herb&shrub&tree" ~ 1/3,
+      GIFT_PlantGrowthForm=="herb&tree" ~ 1/2,
+      GIFT_PlantGrowthForm=="shrub" ~ 0,
+      GIFT_PlantGrowthForm=="shrub&tree" ~ 1/2,
+      GIFT_PlantGrowthForm=="tree" ~ 1
+    )
   )
-)
 head(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
 tail(dat %>% select(GIFT_PlantGrowthForm,state1_herb,state2_shrub,state3_tree))
 dat$state1_herb+dat$state2_shrub+dat$state3_tree
@@ -242,7 +242,7 @@ mapped_trial_trait_num_bins<-map_to_state_space(raw_states = trial_trait_num_bin
 system.time(
   trial_tree_trait_num_bins_ARD<-
     asr_mk_model(tree = trial_tree,Nstates = 5,tip_states = mapped_trial_trait_num_bins$mapped_states,
-             rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(trial_tree_trait_num_bins_ARD,file="./Models/trial_tree_trait_num_bins_ARD")
 
