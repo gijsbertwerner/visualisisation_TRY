@@ -14,6 +14,7 @@ library(diversitree)
 library(corHMM)
 library(Rphylopars)
 library(geiger)
+library(castor)
 
 #####Data reading
 
@@ -26,7 +27,7 @@ tree
 #Read in data directly from the zipped file
 dat<-as.data.table(
   read.csv(unz("./Data/ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv.zip",
-             "ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv")))
+               "ALLMB_Consolidated_FleshedGenera_TRY_Traits.csv")))
 head(dat)
 nrow(dat)
 
@@ -71,7 +72,7 @@ summary(dat$Number.of.Traits)
 dat$Number.of.Traits<-ifelse(is.na(dat$Number.of.Traits),0,dat$Number.of.Traits)
 summary(dat$Number.of.Traits) #This looks convincing
 #Log of numbers
-dat$Log.Number.of.Traits<-ifelse(dat$Number.of.Traits>0,log(dat$Number.of.Traits),0) #I am not sure if it's appropriate to only take the log of the positive numbers
+dat$Log.Number.of.Traits<-log(dat$Number.of.Traits+1) #Do +1 so that zero traits present becomes log(0+1) = 0. 
 summary(dat$Log.Number.of.Traits)
 #Break up in categories for where we want to use it. 
 dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
@@ -81,7 +82,7 @@ table(dat$trait_num_bins)
 
 #Create the proper categories for GF
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
-dat$GIFT_PlantGrowthForm<-gsub(pattern="/","&",dat$GIFT_PlantGrowthForm) #We do this so that with the quantitative reconstruction they will be properly read as being uknown
+dat$GIFT_PlantGrowthForm<-gsub(pattern="/","&",dat$GIFT_PlantGrowthForm) #We do this so that with the quantitative reconstruction they will be properly read as being uknown, when using rayDISC in the corHMM package
 table(dat$GIFT_PlantGrowthForm,useNA = "ifany")
 dat %>% filter(GIFT_PlantGrowthForm=="other") #Drop the 'others' to limit computation -> Discuss with Jens
 dat <- dat %>% filter(GIFT_PlantGrowthForm!="other" | is.na(GIFT_PlantGrowthForm))
@@ -122,7 +123,7 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 ##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for trial code.
 set.seed(01865)
-small_dat<-dat[sample(nrow(dat),size=100),]
+small_dat<-dat[sample(nrow(dat),size=10),]
 small_tree<-drop.tip(tree,
                      tree$tip.label[!tree$tip.label %in% small_dat$match_col])
 plot.phylo(small_tree,type="f",cex = 0.15)
@@ -188,8 +189,8 @@ small_tree_bifurc<-multi2di(small_tree)
 ####Model as an (ordered) character 
 #ordered using meristic in fitDiscrete 
 system.time(
-small_tree_trait_num_bins_meristic<-fitDiscrete(phy = small_tree,dat=small_trait_num_bins,
-                                                model = "meristic")
+  small_tree_trait_num_bins_meristic<-fitDiscrete(phy = small_tree,dat=small_trait_num_bins,
+                                                  model = "meristic")
 ) #Only works with a bifurcating tree
 
 #Do it using raydisc (Note if wanted to do could constraint rate matrix so that this becomes ordered)
@@ -197,21 +198,21 @@ small_dat_trait_num_bins <- small_dat %>% select(match_col,trait_num_bins)
 table(small_dat_trait_num_bins$trait_num_bins)
 
 system.time(
-small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                      model="ER",node.states = "marginal",root.p="yang",
-                                      verbose = T)
+  small_tree_trait_num_bins_ER<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
+                                        model="ER",node.states = "marginal",root.p="yang",
+                                        verbose = T)
 )
 
 system.time(
   small_tree_trait_num_bins_SYM<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                        model="SYM",node.states = "marginal",root.p="yang",
-                                        verbose = T)
+                                         model="SYM",node.states = "marginal",root.p="yang",
+                                         verbose = T)
 )
 
 system.time(
   small_tree_trait_num_bins_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_trait_num_bins,ntraits = 1,
-                                        model="ARD",node.states = "marginal",root.p="yang",
-                                        verbose = T)
+                                         model="ARD",node.states = "marginal",root.p="yang",
+                                         verbose = T)
 )
 
 small_tree_trait_num_bins_ER$AICc
@@ -248,8 +249,8 @@ table(small_dat_gf$GIFT_PlantGrowthForm)
 
 system.time(
   small_tree_gf_ARD<-rayDISC(phy = small_tree_bifurc,data = small_dat_gf,ntraits = 1,
-                                         model="ARD",node.states = "marginal",root.p="yang",
-                                         verbose = T)
+                             model="ARD",node.states = "marginal",root.p="yang",
+                             verbose = T)
 )
 
 #Plot with nodes
@@ -269,13 +270,13 @@ plot.phylo(small_tree,type="f",cex=0.25,
 #Generate baseplot
 names(small_dat)
 small_dat_plotting_traits <- small_dat %>% select(trait_num_bins,
-                                                Leaf.Area,
-                                                SLA,
-                                                Leaf.Nitrogen.Content.Per.Dry.Mass,
-                                                Seed.Dry.Mass,
-                                                Plant.Height,
-                                                Stem.Specific.Density..SSD.,
-                                                All.six.traits..Diaz.et.al.2016.)
+                                                  Leaf.Area,
+                                                  SLA,
+                                                  Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                  Seed.Dry.Mass,
+                                                  Plant.Height,
+                                                  Stem.Specific.Density..SSD.,
+                                                  All.six.traits..Diaz.et.al.2016.)
 head(small_dat_plotting_traits)
 names(small_dat_plotting_traits)[1]<-"Presence"
 names(small_dat_plotting_traits)[4]<-"Leaf.N"
@@ -285,23 +286,8 @@ rownames(small_dat_plotting_traits)<-small_dat$match_col
 
 #RColorbrewer 9-class Set3, seelction
 system.time(
-small_base_plot<-
-  trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                   Leaf.Area=c("gray90","#8dd3c7"),
-                                                                   SLA=c("gray90","#bebada"),
-                                                                   Leaf.N=c("gray90","#fb8072"),
-                                                                   Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                   Plant.Height=c("gray90","#fdb462"),
-                                                                   SSD=c("gray90","#b3de69"),
-                                                                   All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
-)
-
-##Plot baseplot
-<<<<<<< HEAD
-Sys.time()
-pdf(file="./small_35k_spec_base_plot.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+  small_base_plot<-
+    trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                              Leaf.Area=c("gray90","#8dd3c7"),
                                                                              SLA=c("gray90","#bebada"),
                                                                              Leaf.N=c("gray90","#fb8072"),
@@ -310,6 +296,20 @@ trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presenc
                                                                              SSD=c("gray90","#b3de69"),
                                                                              All_Diaz=c("gray90","#fccde5")),
                legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
+)
+
+##Plot baseplot
+Sys.time()
+pdf(file="./small_1k_spec_base_plot.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                         Leaf.Area=c("gray90","#8dd3c7"),
+                                                                         SLA=c("gray90","#bebada"),
+                                                                         Leaf.N=c("gray90","#fb8072"),
+                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                         Plant.Height=c("gray90","#fdb462"),
+                                                                         SSD=c("gray90","#b3de69"),
+                                                                         All_Diaz=c("gray90","#fccde5")),
+           legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 
 dev.off()
 Sys.time()
@@ -351,8 +351,6 @@ dev.off()
 Sys.time()
 
 #Baseplot with categorical trait numbers
-=======
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 Sys.time()
 pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
@@ -401,7 +399,7 @@ Sys.time()
 set.seed(01865)
 intermediate_dat<-dat[sample(nrow(dat),size=35000),]
 intermediate_tree<-drop.tip(tree,
-                     tree$tip.label[!tree$tip.label %in% intermediate_dat$match_col])
+                            tree$tip.label[!tree$tip.label %in% intermediate_dat$match_col])
 plot.phylo(intermediate_tree,type="f",cex = 0.15)
 intermediate_tree
 
@@ -466,7 +464,7 @@ intermediate_tree_bifurc<-multi2di(intermediate_tree)
 #ordered using meristic in fitDiscrete 
 system.time(
   intermediate_tree_trait_num_bins_meristic<-fitDiscrete(phy = intermediate_tree,dat=intermediate_trait_num_bins,
-                                                  model = "meristic")
+                                                         model = "meristic")
 ) #Only works with a bifurcating tree
 
 #Do it using raydisc (Note if wanted to do could constraint rate matrix so that this becomes ordered)
@@ -475,20 +473,20 @@ table(intermediate_dat_trait_num_bins$trait_num_bins)
 
 system.time(
   intermediate_tree_trait_num_bins_ER<-rayDISC(phy = intermediate_tree_bifurc,data = intermediate_dat_trait_num_bins,ntraits = 1,
-                                        model="ER",node.states = "marginal",root.p="yang",
-                                        verbose = T)
+                                               model="ER",node.states = "marginal",root.p="yang",
+                                               verbose = T)
 )
 
 system.time(
   intermediate_tree_trait_num_bins_SYM<-rayDISC(phy = intermediate_tree_bifurc,data = intermediate_dat_trait_num_bins,ntraits = 1,
-                                         model="SYM",node.states = "marginal",root.p="yang",
-                                         verbose = T)
+                                                model="SYM",node.states = "marginal",root.p="yang",
+                                                verbose = T)
 )
 
 system.time(
   intermediate_tree_trait_num_bins_ARD<-rayDISC(phy = intermediate_tree_bifurc,data = intermediate_dat_trait_num_bins,ntraits = 1,
-                                         model="ARD",node.states = "marginal",root.p="yang",
-                                         verbose = T)
+                                                model="ARD",node.states = "marginal",root.p="yang",
+                                                verbose = T)
 )
 
 intermediate_tree_trait_num_bins_ER$AICc
@@ -525,8 +523,8 @@ table(intermediate_dat_gf$GIFT_PlantGrowthForm)
 
 system.time(
   intermediate_tree_gf_ARD<-rayDISC(phy = intermediate_tree_bifurc,data = intermediate_dat_gf,ntraits = 1,
-                             model="ARD",node.states = "marginal",root.p="yang",
-                             verbose = T)
+                                    model="ARD",node.states = "marginal",root.p="yang",
+                                    verbose = T)
 )
 
 #Plot with nodes
@@ -546,13 +544,13 @@ plot.phylo(intermediate_tree,type="f",cex=0.25,
 #Generate baseplot
 names(intermediate_dat)
 intermediate_dat_plotting_traits <- intermediate_dat %>% select(trait_num_bins,
-                                                  Leaf.Area,
-                                                  SLA,
-                                                  Leaf.Nitrogen.Content.Per.Dry.Mass,
-                                                  Seed.Dry.Mass,
-                                                  Plant.Height,
-                                                  Stem.Specific.Density..SSD.,
-                                                  All.six.traits..Diaz.et.al.2016.)
+                                                                Leaf.Area,
+                                                                SLA,
+                                                                Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                                Seed.Dry.Mass,
+                                                                Plant.Height,
+                                                                Stem.Specific.Density..SSD.,
+                                                                All.six.traits..Diaz.et.al.2016.)
 head(intermediate_dat_plotting_traits)
 names(intermediate_dat_plotting_traits)[1]<-"Presence"
 names(intermediate_dat_plotting_traits)[4]<-"Leaf.N"
@@ -564,13 +562,13 @@ rownames(intermediate_dat_plotting_traits)<-intermediate_dat$match_col
 system.time(
   intermediate_base_plot<-
     trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                             Leaf.Area=c("gray90","#8dd3c7"),
-                                                                             SLA=c("gray90","#bebada"),
-                                                                             Leaf.N=c("gray90","#fb8072"),
-                                                                             Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                             Plant.Height=c("gray90","#fdb462"),
-                                                                             SSD=c("gray90","#b3de69"),
-                                                                             All_Diaz=c("gray90","#fccde5")),
+                                                                                           Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                           SLA=c("gray90","#bebada"),
+                                                                                           Leaf.N=c("gray90","#fb8072"),
+                                                                                           Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                           Plant.Height=c("gray90","#fdb462"),
+                                                                                           SSD=c("gray90","#b3de69"),
+                                                                                           All_Diaz=c("gray90","#fccde5")),
                legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 )
 
@@ -578,13 +576,13 @@ system.time(
 Sys.time()
 pdf(file="./intermediate_35k_spec_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                         Leaf.Area=c("gray90","#8dd3c7"),
-                                                                         SLA=c("gray90","#bebada"),
-                                                                         Leaf.N=c("gray90","#fb8072"),
-                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                         Plant.Height=c("gray90","#fdb462"),
-                                                                         SSD=c("gray90","#b3de69"),
-                                                                         All_Diaz=c("gray90","#fccde5")),
+                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                       SLA=c("gray90","#bebada"),
+                                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                                       SSD=c("gray90","#b3de69"),
+                                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 
 dev.off()
@@ -593,26 +591,17 @@ Sys.time()
 
 #Baseplot with log ASR
 Sys.time()
-<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-=======
-pdf(file="./small_1k_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
-                                                                         Leaf.Area=c("gray90","#8dd3c7"),
-                                                                         SLA=c("gray90","#bebada"),
-                                                                         Leaf.N=c("gray90","#fb8072"),
-                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                         Plant.Height=c("gray90","#fdb462"),
-                                                                         SSD=c("gray90","#b3de69"),
-                                                                         All_Diaz=c("gray90","#fccde5")),
+                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                       SLA=c("gray90","#bebada"),
+                                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                                       SSD=c("gray90","#b3de69"),
+                                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-<<<<<<< HEAD
            edge.color = viridis(100)[cut(intermediate_tree_rec_num_log[match(intermediate_tree$edge[,1],names(intermediate_tree_rec_num_log[,1])),1],breaks=100)])
-=======
-           edge.color = viridis(100)[cut(small_tree_rec_num_log[match(small_tree$edge[,1],names(small_tree_rec_num_log[,1])),1],breaks=100)])
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
@@ -620,54 +609,35 @@ Sys.time()
 
 #Baseplot with absolute ASR
 Sys.time()
-<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-=======
-pdf(file="./small_1k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
-                                                                         Leaf.Area=c("gray90","#8dd3c7"),
-                                                                         SLA=c("gray90","#bebada"),
-                                                                         Leaf.N=c("gray90","#fb8072"),
-                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                         Plant.Height=c("gray90","#fdb462"),
-                                                                         SSD=c("gray90","#b3de69"),
-                                                                         All_Diaz=c("gray90","#fccde5")),
+                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                       SLA=c("gray90","#bebada"),
+                                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                                       SSD=c("gray90","#b3de69"),
+                                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-<<<<<<< HEAD
            edge.color = viridis(100)[cut(intermediate_tree_rec_num[match(intermediate_tree$edge[,1],names(intermediate_tree_rec_num[,1])),1],breaks=100)])
-=======
-           edge.color = viridis(100)[cut(small_tree_rec_num[match(small_tree$edge[,1],names(small_tree_rec_num[,1])),1],breaks=100)])
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
 
 #Baseplot with categorical trait numbers
 Sys.time()
-<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-=======
-pdf(file="./small_1k_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
-                                                                         Leaf.Area=c("gray90","#8dd3c7"),
-                                                                         SLA=c("gray90","#bebada"),
-                                                                         Leaf.N=c("gray90","#fb8072"),
-                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                         Plant.Height=c("gray90","#fdb462"),
-                                                                         SSD=c("gray90","#b3de69"),
-                                                                         All_Diaz=c("gray90","#fccde5")),
+                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                       SLA=c("gray90","#bebada"),
+                                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                                       SSD=c("gray90","#b3de69"),
+                                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-<<<<<<< HEAD
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_intermediate_tree_trait_num_bins_ARD_vec[
              match(intermediate_tree$edge[,1],names(ASR_intermediate_tree_trait_num_bins_ARD_vec))]])
-=======
-           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_small_tree_trait_num_bins_ARD_vec[
-             match(small_tree$edge[,1],names(ASR_small_tree_trait_num_bins_ARD_vec))]])
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
@@ -675,33 +645,23 @@ Sys.time()
 
 #Baseplot with growth forms
 Sys.time()
-<<<<<<< HEAD
 pdf(file="./intermediate_35k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = intermediate_tree,dat = intermediate_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-=======
-pdf(file="./small_1k_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = small_tree,dat = small_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
-                                                                         Leaf.Area=c("gray90","#8dd3c7"),
-                                                                         SLA=c("gray90","#bebada"),
-                                                                         Leaf.N=c("gray90","#fb8072"),
-                                                                         Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                         Plant.Height=c("gray90","#fdb462"),
-                                                                         SSD=c("gray90","#b3de69"),
-                                                                         All_Diaz=c("gray90","#fccde5")),
+                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                                       SLA=c("gray90","#bebada"),
+                                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                                       SSD=c("gray90","#b3de69"),
+                                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
-<<<<<<< HEAD
            edge.color = c("lightgreen","darkgreen","brown")[ASR_intermediate_tree_gf_ARD_vec[match(intermediate_tree$edge[,1],names(ASR_intermediate_tree_gf_ARD_vec))]])
-=======
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_small_tree_gf_ARD_vec[match(small_tree$edge[,1],names(ASR_small_tree_gf_ARD_vec))]])
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
 
 dev.off()
 Sys.time()
 
 
 
-<<<<<<< HEAD
 
 
 # Visualisation - Full ------------------------------------------------
@@ -775,7 +735,7 @@ full_tree_bifurc<-multi2di(full_tree)
 #ordered using meristic in fitDiscrete 
 system.time(
   full_tree_trait_num_bins_meristic<-fitDiscrete(phy = full_tree,dat=full_trait_num_bins,
-                                                         model = "meristic")
+                                                 model = "meristic")
 ) #Only works with a bifurcating tree
 
 #Do it using raydisc (Note if wanted to do could constraint rate matrix so that this becomes ordered)
@@ -784,20 +744,20 @@ table(full_dat_trait_num_bins$trait_num_bins)
 
 system.time(
   full_tree_trait_num_bins_ER<-rayDISC(phy = full_tree_bifurc,data = full_dat_trait_num_bins,ntraits = 1,
-                                               model="ER",node.states = "marginal",root.p="yang",
-                                               verbose = T)
+                                       model="ER",node.states = "marginal",root.p="yang",
+                                       verbose = T)
 )
 
 system.time(
   full_tree_trait_num_bins_SYM<-rayDISC(phy = full_tree_bifurc,data = full_dat_trait_num_bins,ntraits = 1,
-                                                model="SYM",node.states = "marginal",root.p="yang",
-                                                verbose = T)
+                                        model="SYM",node.states = "marginal",root.p="yang",
+                                        verbose = T)
 )
 
 system.time(
   full_tree_trait_num_bins_ARD<-rayDISC(phy = full_tree_bifurc,data = full_dat_trait_num_bins,ntraits = 1,
-                                                model="ARD",node.states = "marginal",root.p="yang",
-                                                verbose = T)
+                                        model="ARD",node.states = "marginal",root.p="yang",
+                                        verbose = T)
 )
 
 full_tree_trait_num_bins_ER$AICc
@@ -834,8 +794,8 @@ table(full_dat_gf$GIFT_PlantGrowthForm)
 
 system.time(
   full_tree_gf_ARD<-rayDISC(phy = full_tree_bifurc,data = full_dat_gf,ntraits = 1,
-                                    model="ARD",node.states = "marginal",root.p="yang",
-                                    verbose = T)
+                            model="ARD",node.states = "marginal",root.p="yang",
+                            verbose = T)
 )
 
 #Plot with nodes
@@ -855,13 +815,13 @@ plot.phylo(full_tree,type="f",cex=0.25,
 #Generate baseplot
 names(full_dat)
 full_dat_plotting_traits <- full_dat %>% select(trait_num_bins,
-                                                                Leaf.Area,
-                                                                SLA,
-                                                                Leaf.Nitrogen.Content.Per.Dry.Mass,
-                                                                Seed.Dry.Mass,
-                                                                Plant.Height,
-                                                                Stem.Specific.Density..SSD.,
-                                                                All.six.traits..Diaz.et.al.2016.)
+                                                Leaf.Area,
+                                                SLA,
+                                                Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                Seed.Dry.Mass,
+                                                Plant.Height,
+                                                Stem.Specific.Density..SSD.,
+                                                All.six.traits..Diaz.et.al.2016.)
 head(full_dat_plotting_traits)
 names(full_dat_plotting_traits)[1]<-"Presence"
 names(full_dat_plotting_traits)[4]<-"Leaf.N"
@@ -873,13 +833,13 @@ rownames(full_dat_plotting_traits)<-full_dat$match_col
 system.time(
   full_base_plot<-
     trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                           Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                           SLA=c("gray90","#bebada"),
-                                                                                           Leaf.N=c("gray90","#fb8072"),
-                                                                                           Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                           Plant.Height=c("gray90","#fdb462"),
-                                                                                           SSD=c("gray90","#b3de69"),
-                                                                                           All_Diaz=c("gray90","#fccde5")),
+                                                                           Leaf.Area=c("gray90","#8dd3c7"),
+                                                                           SLA=c("gray90","#bebada"),
+                                                                           Leaf.N=c("gray90","#fb8072"),
+                                                                           Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                           Plant.Height=c("gray90","#fdb462"),
+                                                                           SSD=c("gray90","#b3de69"),
+                                                                           All_Diaz=c("gray90","#fccde5")),
                legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 )
 
@@ -887,13 +847,13 @@ system.time(
 Sys.time()
 pdf(file="./full_full_spec_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                       SLA=c("gray90","#bebada"),
-                                                                                       Leaf.N=c("gray90","#fb8072"),
-                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                       Plant.Height=c("gray90","#fdb462"),
-                                                                                       SSD=c("gray90","#b3de69"),
-                                                                                       All_Diaz=c("gray90","#fccde5")),
+                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                       SLA=c("gray90","#bebada"),
+                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                       SSD=c("gray90","#b3de69"),
+                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5)
 
 dev.off()
@@ -904,13 +864,13 @@ Sys.time()
 Sys.time()
 pdf(file="./full_full_spec_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                       SLA=c("gray90","#bebada"),
-                                                                                       Leaf.N=c("gray90","#fb8072"),
-                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                       Plant.Height=c("gray90","#fdb462"),
-                                                                                       SSD=c("gray90","#b3de69"),
-                                                                                       All_Diaz=c("gray90","#fccde5")),
+                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                       SLA=c("gray90","#bebada"),
+                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                       SSD=c("gray90","#b3de69"),
+                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
            edge.color = viridis(100)[cut(full_tree_rec_num_log[match(full_tree$edge[,1],names(full_tree_rec_num_log[,1])),1],breaks=100)])
 
@@ -922,13 +882,13 @@ Sys.time()
 Sys.time()
 pdf(file="./full_35k_spec_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                       SLA=c("gray90","#bebada"),
-                                                                                       Leaf.N=c("gray90","#fb8072"),
-                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                       Plant.Height=c("gray90","#fdb462"),
-                                                                                       SSD=c("gray90","#b3de69"),
-                                                                                       All_Diaz=c("gray90","#fccde5")),
+                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                       SLA=c("gray90","#bebada"),
+                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                       SSD=c("gray90","#b3de69"),
+                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
            edge.color = viridis(100)[cut(full_tree_rec_num[match(full_tree$edge[,1],names(full_tree_rec_num[,1])),1],breaks=100)])
 
@@ -939,13 +899,13 @@ Sys.time()
 Sys.time()
 pdf(file="./full_full_spec_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                       SLA=c("gray90","#bebada"),
-                                                                                       Leaf.N=c("gray90","#fb8072"),
-                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                       Plant.Height=c("gray90","#fdb462"),
-                                                                                       SSD=c("gray90","#b3de69"),
-                                                                                       All_Diaz=c("gray90","#fccde5")),
+                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                       SLA=c("gray90","#bebada"),
+                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                       SSD=c("gray90","#b3de69"),
+                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
            edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_full_tree_trait_num_bins_ARD_vec[
              match(full_tree$edge[,1],names(ASR_full_tree_trait_num_bins_ARD_vec))]])
@@ -958,13 +918,13 @@ Sys.time()
 Sys.time()
 pdf(file="./full_full_spec_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = full_tree,dat = full_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                       Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                       SLA=c("gray90","#bebada"),
-                                                                                       Leaf.N=c("gray90","#fb8072"),
-                                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                       Plant.Height=c("gray90","#fdb462"),
-                                                                                       SSD=c("gray90","#b3de69"),
-                                                                                       All_Diaz=c("gray90","#fccde5")),
+                                                                       Leaf.Area=c("gray90","#8dd3c7"),
+                                                                       SLA=c("gray90","#bebada"),
+                                                                       Leaf.N=c("gray90","#fb8072"),
+                                                                       Seed.Dry.Mass=c("gray90","#80b1d3"),
+                                                                       Plant.Height=c("gray90","#fdb462"),
+                                                                       SSD=c("gray90","#b3de69"),
+                                                                       All_Diaz=c("gray90","#fccde5")),
            legend=T,cex.lab=0.0001,edge.width=0.25,cex.legend = 0.5,
            edge.color = c("lightgreen","darkgreen","brown")[ASR_full_tree_gf_ARD_vec[match(full_tree$edge[,1],names(ASR_full_tree_gf_ARD_vec))]])
 
@@ -974,5 +934,3 @@ Sys.time()
 
 
 
-=======
->>>>>>> 3909bb21f0e979d9992e1ad3836bf0f86270f17d
