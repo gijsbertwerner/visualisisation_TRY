@@ -244,7 +244,7 @@ mapped_run_17.5k_trait_num_bins<-map_to_state_space(raw_states = run_17.5k_trait
 system.time(
   run_17.5k_tree_trait_num_bins_ARD<-
     asr_mk_model(tree = run_17.5k_tree,Nstates = 5,tip_states = mapped_run_17.5k_trait_num_bins$mapped_states,
-                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Nrun_17.5ks = 24,Nthreads = 6)
+                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(run_17.5k_tree_trait_num_bins_ARD,file="./Models/run_17.5k_tree_trait_num_bins_ARD")
 
@@ -264,7 +264,7 @@ plot.phylo(run_17.5k_tree,type="f",cex=0.25,
 system.time(
   run_17.5k_tree_trait_num_bins_SRD<-
     asr_mk_model(tree = run_17.5k_tree,Nstates = 5,tip_states = mapped_run_17.5k_trait_num_bins$mapped_states,
-                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Nrun_17.5ks = 24,Nthreads = 6)
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 
 save(run_17.5k_tree_trait_num_bins_SRD,file="./Models/run_17.5k_tree_trait_num_bins_SRD")
@@ -302,7 +302,7 @@ head(run_17.5k_gf_priors)
 system.time(
   run_17.5k_tree_gf_ARD<-
     asr_mk_model(tree = run_17.5k_tree,Nstates = 3,tip_states = NULL,tip_priors = run_17.5k_gf_priors,
-                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Nrun_17.5ks = 24,Nthreads = 6)
+                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(run_17.5k_tree_gf_ARD,file="./Models/run_17.5k_tree_gf_ARD")
 
@@ -320,7 +320,7 @@ plot.phylo(run_17.5k_tree,type="f",cex=0.25,
 system.time(
   run_17.5k_tree_gf_SRD<-
     asr_mk_model(tree = run_17.5k_tree,Nstates = 3,tip_states = NULL,tip_priors = run_17.5k_gf_priors,
-                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Nrun_17.5ks = 24,Nthreads = 6)
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(run_17.5k_tree_gf_SRD,file="./Models/run_17.5k_tree_gf_SRD")
 
@@ -341,7 +341,7 @@ herb_anc_vec
 system.time(
   run_17.5k_tree_gf_SRD_herb_anc<-
     asr_mk_model(tree = run_17.5k_tree,Nstates = 3,tip_states = NULL,tip_priors = run_17.5k_gf_priors,root_prior = herb_anc_vec,
-                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Nrun_17.5ks = 24,Nthreads = 6)
+                 rate_model = "SRD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
 )
 save(run_17.5k_tree_gf_SRD_herb_anc,file="./Models/run_17.5k_tree_gf_SRD_herb_anc")
 
