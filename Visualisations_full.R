@@ -231,7 +231,7 @@ mapped_run_fullk_trait_num_bins<-map_to_state_space(raw_states = run_fullk_trait
 system.time(
   run_fullk_tree_trait_num_bins_ARD<-
     asr_mk_model(tree = run_fullk_tree,Nstates = 5,tip_states = mapped_run_fullk_trait_num_bins$mapped_states,
-                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6)
+                 rate_model = "ARD",include_ancestral_likelihoods = T,reroot = T,Ntrials = 24,Nthreads = 6,optim_max_iterations=2000)
 )
 save(run_fullk_tree_trait_num_bins_ARD,file="./Models/run_fullk_tree_trait_num_bins_ARD")
 
