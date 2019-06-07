@@ -1,5 +1,5 @@
 #Gijsbert Werner, Balliol College, University of Oxford
-#April 2019
+#April-June 2019
 
 #Script to explore new visualisations for the updated TRY manuscript 
 
@@ -36,8 +36,6 @@ dat_gf<-as.data.table(
                "ALLMB_Consolidated_FleshedGenera_TRY_Traits_GIFT_GrowthForm.csv")))
 head(dat_gf)
 nrow(dat_gf) #Data not present for all tree tips, about 150k fewer. All missing ones treat as NA?
-
-
 
 # Data formatting ---------------------------------------------------------
 
