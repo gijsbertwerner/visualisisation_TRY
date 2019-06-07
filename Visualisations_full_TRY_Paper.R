@@ -11,9 +11,7 @@ library(data.table)
 library(RColorBrewer)
 library(viridis)
 library(diversitree)
-library(corHMM)
 library(Rphylopars)
-library(geiger)
 library(castor)
 
 #####Data reading
