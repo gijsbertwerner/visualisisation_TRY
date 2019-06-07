@@ -210,28 +210,25 @@ run_fullk_dat_plotting_traits <- run_fullk_dat %>% select(trait_num_bins,
                                                           Leaf.Nitrogen.Content.Per.Dry.Mass,
                                                           Seed.Dry.Mass,
                                                           Plant.Height,
-                                                          Stem.Specific.Density..SSD.,
-                                                          All.six.traits..Diaz.et.al.2016.)
+                                                          Stem.Specific.Density..SSD.)
 head(run_fullk_dat_plotting_traits)
 names(run_fullk_dat_plotting_traits)[1]<-"Presence"
 names(run_fullk_dat_plotting_traits)[4]<-"Leaf.N"
 names(run_fullk_dat_plotting_traits)[7]<-"SSD"
-names(run_fullk_dat_plotting_traits)[8]<-"All_Diaz"
 rownames(run_fullk_dat_plotting_traits)<-run_fullk_dat$match_col
 
 #RColorbrewer 9-class Set3, seelction
 
 ##Plot baseplot
 Sys.time()
-pdf(file="./Figures/run_fullk_base_plot.pdf",width = 8.2,height = 8.2)
+pdf(file="./Figures/full_species_base_plot.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                                  Leaf.Area=c("gray90","#8dd3c7"),
                                                                                  SLA=c("gray90","#bebada"),
                                                                                  Leaf.N=c("gray90","#fb8072"),
                                                                                  Seed.Dry.Mass=c("gray90","#80b1d3"),
                                                                                  Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
+                                                                                 SSD=c("gray90","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5)
 
 dev.off()
@@ -247,8 +244,7 @@ trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list
                                                                                  Leaf.N=c("gray90","#fb8072"),
                                                                                  Seed.Dry.Mass=c("gray90","#80b1d3"),
                                                                                  Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
+                                                                                 SSD=c("gray90","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
@@ -257,122 +253,3 @@ add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
 dev.off()
 Sys.time()
 gc()
-
-#Baseplot with absolute ASR
-Sys.time()
-pdf(file="./Figures/run_fullk_trait_asbolute_num_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(run_fullk_tree_rec_num[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num[,1])),1],breaks=100)])
-add.color.bar(100,viridis(100),title = "Trait #",prompt = F,
-              lims = c(min(run_fullk_trait_num),max(run_fullk_trait_num)),fsize=0.5,
-              x=-100,y=-50)
-dev.off()
-Sys.time()
-gc()
-
-#Baseplot with categorical trait numbers
-Sys.time()
-pdf(file="./Figures/run_fullk_trait_num_bins_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_run_fullk_tree_trait_num_bins_ARD_vec[
-             match(run_fullk_tree$edge[,1],names(ASR_run_fullk_tree_trait_num_bins_ARD_vec))]])
-
-dev.off()
-Sys.time()
-gc()
-
-Sys.time()
-pdf(file="./Figures/run_fullk_trait_num_bins_ASR_SRD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = c("#bd0026","#f03b20","#fd8d3c","#fecc5c","gray90")[ASR_run_fullk_tree_trait_num_bins_SRD_vec[
-             match(run_fullk_tree$edge[,1],names(ASR_run_fullk_tree_trait_num_bins_SRD_vec))]])
-dev.off()
-Sys.time()
-gc()
-
-#Baseplot with growth forms
-Sys.time()
-pdf(file="./Figures/run_fullk_gf_ASR_ARD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_fullk_tree_gf_ARD_vec[match(run_fullk_tree$edge[,1],names(ASR_run_fullk_tree_gf_ARD_vec))]])
-
-dev.off()
-Sys.time()
-gc()
-
-#Baseplot with growth forms
-Sys.time()
-pdf(file="./Figures/run_fullk_gf_ASR_SRD.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_fullk_tree_gf_SRD_vec[match(run_fullk_tree$edge[,1],names(ASR_run_fullk_tree_gf_SRD_vec))]])
-
-dev.off()
-Sys.time()
-gc()
-
-#Baseplot with growth forms
-Sys.time()
-pdf(file="./Figures/run_fullk_gf_ASR_SRD_herc_anc.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray90","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray90","#8dd3c7"),
-                                                                                 SLA=c("gray90","#bebada"),
-                                                                                 Leaf.N=c("gray90","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray90","#80b1d3"),
-                                                                                 Plant.Height=c("gray90","#fdb462"),
-                                                                                 SSD=c("gray90","#b3de69"),
-                                                                                 All_Diaz=c("gray90","#fccde5")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = c("lightgreen","darkgreen","brown")[ASR_run_fullk_tree_gf_SRD_herc_anc_vec[match(run_fullk_tree$edge[,1],names(ASR_run_fullk_tree_gf_SRD_herc_anc_vec))]])
-
-dev.off()
-Sys.time()
-gc()
-
-plotting_end<-Sys.time()
-
-analysis_start
-analysis_end_plot_start
-plotting_end
-save.image()
-
-
