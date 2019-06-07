@@ -69,7 +69,9 @@ dat$Number.of.Traits<-ifelse(is.na(dat$Number.of.Traits),0,dat$Number.of.Traits)
 summary(dat$Number.of.Traits) #This looks convincing
 #Log of numbers
 dat$Log.Number.of.Traits<-log(dat$Number.of.Traits+1) #Do +1 so that zero traits present becomes log(0+1) = 0. 
+dat$Double.Log.Number.of.Traits<-log(dat$Log.Number.of.Traits+1) #Do +1 so that zero traits present becomes log(0+1) = 0. 
 summary(dat$Log.Number.of.Traits)
+summary(dat$Double.Log.Number.of.Traits)
 #Break up in categories for where we want to use it. 
 dat <- dat %>% mutate(trait_num_bins=cut(Number.of.Traits,
                                          breaks = c(-Inf,1,6,11,101,Inf),
@@ -174,14 +176,12 @@ analysis_start<-Sys.time()
 #Let's make some small dataset for run_fullk code.
 set.seed(01865)
 run_fullk_dat<-dat[sample(nrow(dat),size=nrow(dat)),]
+#run_fullk_dat<-dat[sample(nrow(dat),size=1000),] for trialling
 run_fullk_tree<-drop.tip(tree,
                          tree$tip.label[!tree$tip.label %in% run_fullk_dat$match_col])
 run_fullk_tree
 
 ##ASRs
-
-#Two potential semi-quantitative ones: 1. log of number / or absolute numbers, or 2. bins of numbers (ordinal) 
-#A discrete one (gf)
 
 ####Quantiative reconstruction, log numbers
 summary(run_fullk_dat$Log.Number.of.Traits)
@@ -195,6 +195,20 @@ system.time(
   run_fullk_tree_rec_num_log<-anc.recon(trait_data = run_fullk_trait_num_log,tree = run_fullk_tree)
 )
 save(run_fullk_tree_rec_num_log,file = "./Models/run_fullk_tree_rec_num_log")
+gc()
+
+####Quantiative reconstruction, double log numbers
+summary(run_fullk_dat$Double.Log.Number.of.Traits)
+#Create vector
+run_fullk_trait_num_double_log<-run_fullk_dat$Double.Log.Number.of.Traits
+names(run_fullk_trait_num_double_log)<-run_fullk_dat$match_col
+#For ease of plotting, order vector same order as in tree
+run_fullk_trait_num_double_log<-run_fullk_trait_num_double_log[match(run_fullk_tree$tip.label,names(run_fullk_trait_num_double_log))]
+
+system.time(
+    run_fullk_tree_rec_num_double_log<-anc.recon(trait_data = run_fullk_trait_num_double_log,tree = run_fullk_tree)
+)
+save(run_fullk_tree_rec_num_double_log,file = "./Models/run_fullk_tree_rec_num_double_log")
 gc()
 
 
@@ -254,6 +268,25 @@ dev.off()
 Sys.time()
 gc()
 
+#Baseplot with double log ASR
+Sys.time()
+pdf(file="./Figures/full_species_trait_num_double_log_ASR.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
+                                                                                 SLA=c("gray95","#bebada"),
+                                                                                 Leaf.N=c("gray95","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
+                                                                                 Plant.Height=c("gray95","#fdb462"),
+                                                                                 SSD=c("gray95","#b3de69")),
+           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
+add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
+              lims = c(min(run_fullk_tree_rec_num_double_log[,1]),max(run_fullk_tree_rec_num_double_log[,1])),fsize=0.5,
+              x=-100,y=-50)
+dev.off()
+Sys.time()
+gc()
+
 #Baseplot with log ASR, cut-off
 summary(run_fullk_tree_rec_num_log[,1])
 run_fullk_tree_rec_num_log_cut_off<-run_fullk_tree_rec_num_log
@@ -298,3 +331,6 @@ add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
 dev.off()
 Sys.time()
 gc()
+
+###Missing reconstructions gray
+cut(run_fullk_tree_rec_num_log_cut_off_strong[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off_strong[,1])),1],breaks=100)
