@@ -236,13 +236,13 @@ rownames(run_fullk_dat_plotting_traits)<-run_fullk_dat$match_col
 ##Plot baseplot
 Sys.time()
 pdf(file="./Figures/full_species_base_plot.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
-                                                                                 SLA=c("gray95","#bebada"),
-                                                                                 Leaf.N=c("gray95","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
-                                                                                 Plant.Height=c("gray95","#fdb462"),
-                                                                                 SSD=c("gray95","#b3de69")),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5)
 
 dev.off()
@@ -252,13 +252,13 @@ gc()
 #Baseplot with log ASR
 Sys.time()
 pdf(file="./Figures/full_species_trait_num_log_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
-                                                                                 SLA=c("gray95","#bebada"),
-                                                                                 Leaf.N=c("gray95","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
-                                                                                 Plant.Height=c("gray95","#fdb462"),
-                                                                                 SSD=c("gray95","#b3de69")),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
@@ -271,13 +271,13 @@ gc()
 #Baseplot with double log ASR
 Sys.time()
 pdf(file="./Figures/full_species_trait_num_double_log_ASR.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
-                                                                                 SLA=c("gray95","#bebada"),
-                                                                                 Leaf.N=c("gray95","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
-                                                                                 Plant.Height=c("gray95","#fdb462"),
-                                                                                 SSD=c("gray95","#b3de69")),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
@@ -290,21 +290,24 @@ gc()
 #Baseplot with log ASR, cut-off
 summary(run_fullk_tree_rec_num_log[,1])
 run_fullk_tree_rec_num_log_cut_off<-run_fullk_tree_rec_num_log
+run_fullk_tree_rec_num_log_cut_off_intermediate<-run_fullk_tree_rec_num_log
 run_fullk_tree_rec_num_log_cut_off_strong<-run_fullk_tree_rec_num_log
 run_fullk_tree_rec_num_log_cut_off[which(run_fullk_tree_rec_num_log_cut_off>log(101)),1]<-log(101)
+run_fullk_tree_rec_num_log_cut_off_intermediate[which(run_fullk_tree_rec_num_log_cut_off_intermediate>log(26)),1]<-log(26)
 run_fullk_tree_rec_num_log_cut_off_strong[which(run_fullk_tree_rec_num_log_cut_off_strong>log(11)),1]<-log(11)
 summary(run_fullk_tree_rec_num_log_cut_off[,1])
+summary(run_fullk_tree_rec_num_log_cut_off_intermediate[,1])
 summary(run_fullk_tree_rec_num_log_cut_off_strong[,1])
 
 Sys.time()
 pdf(file="./Figures/full_species_trait_num_log_ASR_cut_off.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
-                                                                                 SLA=c("gray95","#bebada"),
-                                                                                 Leaf.N=c("gray95","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
-                                                                                 Plant.Height=c("gray95","#fdb462"),
-                                                                                 SSD=c("gray95","#b3de69")),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log_cut_off[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
@@ -315,14 +318,32 @@ Sys.time()
 gc()
 
 Sys.time()
+pdf(file="./Figures/full_species_trait_num_log_ASR_cut_off__intermediate.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
+           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log_cut_off__intermediate[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off__intermediate[,1])),1],breaks=100)])
+add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
+              lims = c(min(run_fullk_tree_rec_num_log_cut_off__intermediate[,1]),max(run_fullk_tree_rec_num_log_cut_off__intermediate[,1])),fsize=0.5,
+              x=-100,y=-50)
+dev.off()
+Sys.time()
+gc()
+
+Sys.time()
 pdf(file="./Figures/full_species_trait_num_log_ASR_cut_off_strong.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray95","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
-                                                                                 Leaf.Area=c("gray95","#8dd3c7"),
-                                                                                 SLA=c("gray95","#bebada"),
-                                                                                 Leaf.N=c("gray95","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("gray95","#80b1d3"),
-                                                                                 Plant.Height=c("gray95","#fdb462"),
-                                                                                 SSD=c("gray95","#b3de69")),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log_cut_off_strong[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off_strong[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
@@ -333,4 +354,32 @@ Sys.time()
 gc()
 
 ###Missing reconstructions gray
-cut(run_fullk_tree_rec_num_log_cut_off_strong[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off_strong[,1])),1],breaks=100)
+log(1) #Absence 
+log(2) #1 trait present
+levels(cut(run_fullk_tree_rec_num_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log[,1])),1],breaks=100))
+#Ok, so the bottom 11 colours are all absences
+absent_col<-viridis(100)[1:11]
+run_fullk_tree_rec_num_log_colour_vector<-viridis(100)[cut(run_fullk_tree_rec_num_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log[,1])),1],breaks=100)]
+run_fullk_tree_rec_num_log_colour_vector[which(run_fullk_tree_rec_num_log_colour_vector %in% absent_col)]<-"gray96"
+run_fullk_tree_rec_num_log_colour_vector
+
+cols_colbar<-viridis(100)
+cols_colbar[1:11]<-"gray96"
+
+Sys.time()
+pdf(file="./Figures/full_species_trait_num_log_ASR_gray_abssence.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+                                                                                 Leaf.Area=c("gray96","#8dd3c7"),
+                                                                                 SLA=c("gray96","#bebada"),
+                                                                                 Leaf.N=c("gray96","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("gray96","#80b1d3"),
+                                                                                 Plant.Height=c("gray96","#fdb462"),
+                                                                                 SSD=c("gray96","#b3de69")),
+           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
+           edge.color = run_fullk_tree_rec_num_log_colour_vector)
+add.color.bar(100,cols_colbar,title = "Log of trait #",prompt = F,
+              lims = c(min(run_fullk_tree_rec_num_log[,1]),max(run_fullk_tree_rec_num_log[,1])),fsize=0.5,
+              x=-100,y=-50)
+dev.off()
+Sys.time()
+gc()
