@@ -13,6 +13,7 @@ library(viridis)
 library(diversitree)
 library(Rphylopars)
 library(castor)
+library(ggplot2)
 
 #####Data reading
 
@@ -167,6 +168,14 @@ table(dat$All.six.traits..Diaz.et.al.2016.)
 write.csv(x = dat,file = "./Data/analysed_data.csv",row.names = F)
 write.tree(phy = tree,file = "./Data/analysed_tree.tre")
 
+#histograms
+ggplot(data = dat)+
+  geom_histogram(aes(x=Number.of.Traits),stat="density")+
+  geom_density(aes(x = Number.of.Traits))+theme_bw()
+
+ggplot(data = dat)+
+  geom_histogram(aes(x=Log.Number.of.Traits),stat="density")+
+  geom_density(aes(x = Log.Number.of.Traits))+theme_bw()
 
 # Analyses - run_fullk  ------------------------------------------------
 
