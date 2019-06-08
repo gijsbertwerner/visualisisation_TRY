@@ -336,9 +336,9 @@ trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list
                                                                                  Plant.Height=c("gray96","#fdb462"),
                                                                                  SSD=c("gray96","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log_cut_off__intermediate[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off__intermediate[,1])),1],breaks=100)])
+           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_log_cut_off_intermediate[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_log_cut_off_intermediate[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Log of trait #",prompt = F,
-              lims = c(min(run_fullk_tree_rec_num_log_cut_off__intermediate[,1]),max(run_fullk_tree_rec_num_log_cut_off__intermediate[,1])),fsize=0.5,
+              lims = c(min(run_fullk_tree_rec_num_log_cut_off_intermediate[,1]),max(run_fullk_tree_rec_num_log_cut_off__intermediate[,1])),fsize=0.5,
               x=-100,y=-50)
 dev.off()
 Sys.time()
@@ -373,10 +373,10 @@ run_fullk_tree_rec_num_log_colour_vector[which(run_fullk_tree_rec_num_log_colour
 run_fullk_tree_rec_num_log_colour_vector
 
 cols_colbar<-viridis(100)
-cols_colbar[1:11]<-"gray96"
+cols_colbar[1:11]<-"gray94"
 
 Sys.time()
-pdf(file="./Figures/full_species_trait_num_log_ASR_gray_abssence.pdf",width = 8.2,height = 8.2)
+pdf(file="./Figures/full_species_trait_num_log_ASR_gray_absence_on_phylogeny.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("gray96","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
                                                                                  Leaf.Area=c("gray96","#8dd3c7"),
                                                                                  SLA=c("gray96","#bebada"),
