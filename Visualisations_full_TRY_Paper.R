@@ -215,7 +215,7 @@ names(run_fullk_trait_num_double_log)<-run_fullk_dat$match_col
 run_fullk_trait_num_double_log<-run_fullk_trait_num_double_log[match(run_fullk_tree$tip.label,names(run_fullk_trait_num_double_log))]
 
 system.time(
-    run_fullk_tree_rec_num_double_log<-anc.recon(trait_data = run_fullk_trait_num_double_log,tree = run_fullk_tree)
+  run_fullk_tree_rec_num_double_log<-anc.recon(trait_data = run_fullk_trait_num_double_log,tree = run_fullk_tree)
 )
 save(run_fullk_tree_rec_num_double_log,file = "./Models/run_fullk_tree_rec_num_double_log")
 gc()
@@ -343,12 +343,12 @@ gc()
 Sys.time()
 pdf(file="./Figures/full_species_trait_num_double_log_ASR_dark_bg_no_innner.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits %>% select(-Presence),
-                                                                      cols = list(Leaf.Area=c("#440154FF","#8dd3c7"),
-                                                                                 SLA=c("#440154FF","#bebada"),
-                                                                                 Leaf.N=c("#440154FF","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("#440154FF","#80b1d3"),
-                                                                                 Plant.Height=c("#440154FF","#fdb462"),
-                                                                                 SSD=c("#440154FF","#b3de69")),
+           cols = list(Leaf.Area=c("#440154FF","#8dd3c7"),
+                       SLA=c("#440154FF","#bebada"),
+                       Leaf.N=c("#440154FF","#fb8072"),
+                       Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                       Plant.Height=c("#440154FF","#fdb462"),
+                       SSD=c("#440154FF","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Double Log of trait #",prompt = F,
