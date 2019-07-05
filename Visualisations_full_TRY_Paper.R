@@ -297,10 +297,33 @@ Sys.time()
 gc()
 
 #Suggestions Jens, June 19
-Sys.time()
 viridis(100)[1]
+table(dat$trait_num_bins)
+length(which(dat$Number.of.Traits<1))
+
+#Ok, do the median of each of these in double log terms
+log(log(median(c(1,5))+1)+1)
+log(log(median(c(6,10))+1)+1)
+log(log(median(c(11,100))+1)+1)
+log(log(median(c(101,max(dat$Number.of.Traits)))+1)+1)
+#and the max is
+log(log(max(dat$Number.of.Traits)+1)+1)
+
+#So that means bin number:
+round(100*(log(log(median(c(1,5))+1)+1)/1.994106))
+round(100*(log(log(median(c(6,10))+1)+1)/1.994106))
+round(100*(log(log(median(c(11,100))+1)+1)/1.994106))
+round(100*(log(log(median(c(101,max(dat$Number.of.Traits)))+1)+1)/1.994106))
+
+#And the corresponding colours
+viridis(100)[44]
+viridis(100)[58]
+viridis(100)[81]
+viridis(100)[96]
+
+Sys.time()
 pdf(file="./Figures/full_species_trait_num_double_log_ASR_dark_bg.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("#440154FF","#fecc5c","#fd8d3c","#f03b20","#bd0026"),
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#7FD34EFF"),
                                                                                  Leaf.Area=c("#440154FF","#8dd3c7"),
                                                                                  SLA=c("#440154FF","#bebada"),
                                                                                  Leaf.N=c("#440154FF","#fb8072"),
