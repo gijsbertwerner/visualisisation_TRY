@@ -175,7 +175,7 @@ analysis_start<-Sys.time()
 
 #Let's make some small dataset for run_thin5perc code.
 set.seed(01865)
-run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]a
+run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]
 #run_thin5perc_dat<-dat[sample(nrow(dat),size=1000),] for trialling
 run_thin5perc_tree<-drop.tip(tree,
                              tree$tip.label[!tree$tip.label %in% run_thin5perc_dat$match_col])
@@ -232,16 +232,16 @@ log(log(median(c(101,max(run_thin5perc_dat$Number.of.Traits)))+1)+1)
 log(log(max(run_thin5perc_dat$Number.of.Traits)+1)+1)
 
 #So that means bin number:
-round(100*(log(log(median(c(1,5))+1)+1)/1.994106))
-round(100*(log(log(median(c(6,10))+1)+1)/1.994106))
-round(100*(log(log(median(c(11,100))+1)+1)/1.994106))
-round(100*(log(log(median(c(101,max(run_thin5perc_dat$Number.of.Traits)))+1)+1)/1.994106))
+round(100*(log(log(median(c(1,5))+1)+1)/log(log(max(run_thin5perc_dat$Number.of.Traits)+1)+1)))
+round(100*(log(log(median(c(6,10))+1)+1)/log(log(max(run_thin5perc_dat$Number.of.Traits)+1)+1)))
+round(100*(log(log(median(c(11,100))+1)+1)/log(log(max(run_thin5perc_dat$Number.of.Traits)+1)+1)))
+round(100*(log(log(median(c(101,max(run_thin5perc_dat$Number.of.Traits)))+1)+1)/log(log(max(run_thin5perc_dat$Number.of.Traits)+1)+1)))
 
 #And the corresponding colours
 viridis(100)[44]
-viridis(100)[58]
-viridis(100)[81]
-viridis(100)[95]
+viridis(100)[59]
+viridis(100)[82]
+viridis(100)[96]
 
 Sys.time()
 pdf(file="./Figures/Main_text_fig_raw.pdf",width = 8.2,height = 8.2)
@@ -271,7 +271,7 @@ trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits,col
                                                                                          SSD=c("#440154FF","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,plot=T, 
            edge.color = viridis(100)[cut(run_thin5perc_tree_rec_num_double_log[match(run_thin5perc_tree$edge[,1],names(run_thin5perc_tree_rec_num_double_log[,1])),1],breaks=100)])
-add.color.bar(100,viridis(100),title = "To change manually",prompt = F,
+add.color.bar(150,viridis(100),title = "To change manually",prompt = F,
               lims = c(min(run_thin5perc_tree_rec_num_double_log[,1]),max(run_thin5perc_tree_rec_num_double_log[,1])),fsize=0.5,
               x=-100,y=-50)
 dev.off()
@@ -279,4 +279,133 @@ Sys.time()
 gc()
 
 
+pdf(file="./Figures/Main_text_fig_onlynodenames.pdf",width = 20,height = 20)
+plot.phylo(x = run_thin5perc_tree,type = "f",show.tip.label = F,show.node.label = T,edge.width = 0.1,edge.color = "gray",cex=0.6)
+dev.off()
+
+
+pdf(file="./Figures/Main_text_fig_nodes_and_tips.pdf",width = 100,height = 100)
+plot.phylo(x = run_thin5perc_tree,type = "f",show.tip.label = T,show.node.label = T,edge.width = 0.1,edge.color = "gray",cex = 0.1)
+dev.off()
+
+
+# Analyses - Supplementary  ------------------------------------------------
+
+analysis_start<-Sys.time()
+
+#Let's make some small dataset for run_fullk code.
+set.seed(01865)
+run_fullk_dat<-dat[sample(nrow(dat),size=nrow(dat)),]
+#run_fullk_dat<-dat[sample(nrow(dat),size=1000),] for trialling
+run_fullk_tree<-drop.tip(tree,
+                         tree$tip.label[!tree$tip.label %in% run_fullk_dat$match_col])
+run_fullk_tree
+
+##ASRs
+
+####Quantiative reconstruction, double log numbers
+summary(run_fullk_dat$Double.Log.Number.of.Traits)
+#Create vector
+run_fullk_trait_num_double_log<-run_fullk_dat$Double.Log.Number.of.Traits
+names(run_fullk_trait_num_double_log)<-run_fullk_dat$match_col
+#For ease of plotting, order vector same order as in tree
+run_fullk_trait_num_double_log<-run_fullk_trait_num_double_log[match(run_fullk_tree$tip.label,names(run_fullk_trait_num_double_log))]
+
+system.time(
+  run_fullk_tree_rec_num_double_log<-anc.recon(trait_data = run_fullk_trait_num_double_log,tree = run_fullk_tree)
+)
+save(run_fullk_tree_rec_num_double_log,file = "./Models/run_fullk_tree_rec_num_double_log")
+gc()
+
+
+# Plotting ----------------------------------------------------------------
+
+#Generate baseplot
+names(run_fullk_dat)
+run_fullk_dat_plotting_traits <- run_fullk_dat %>% select(trait_num_bins,
+                                                          Leaf.Area,
+                                                          SLA,
+                                                          Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                          Seed.Dry.Mass,
+                                                          Plant.Height,
+                                                          Stem.Specific.Density..SSD.)
+head(run_fullk_dat_plotting_traits)
+names(run_fullk_dat_plotting_traits)[1]<-"Presence"
+names(run_fullk_dat_plotting_traits)[4]<-"Leaf.N"
+names(run_fullk_dat_plotting_traits)[7]<-"SSD"
+rownames(run_fullk_dat_plotting_traits)<-run_fullk_dat$match_col
+
+#RColorbrewer 9-class Set3, seelction
+#Suggestions Jens, June 19
+viridis(100)[1]
+table(dat$trait_num_bins)
+length(which(dat$Number.of.Traits<1))
+
+#Ok, do the median of each of these in double log terms
+log(log(median(c(1,5))+1)+1)
+log(log(median(c(6,10))+1)+1)
+log(log(median(c(11,100))+1)+1)
+log(log(median(c(101,max(dat$Number.of.Traits)))+1)+1)
+#and the max is
+log(log(max(dat$Number.of.Traits)+1)+1)
+
+#So that means bin number:
+round(100*(log(log(median(c(1,5))+1)+1)/1.994106))
+round(100*(log(log(median(c(6,10))+1)+1)/1.994106))
+round(100*(log(log(median(c(11,100))+1)+1)/1.994106))
+round(100*(log(log(median(c(101,max(dat$Number.of.Traits)))+1)+1)/1.994106))
+
+#And the corresponding colours
+viridis(100)[44]
+viridis(100)[58]
+viridis(100)[81]
+viridis(100)[96]
+
+Sys.time()
+pdf(file="./Figures/FullSupFigure_FullColours_NoNames.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#E4E419FF"),
+                                                                                 Leaf.Area=c("#440154FF","#8dd3c7"),
+                                                                                 SLA=c("#440154FF","#bebada"),
+                                                                                 Leaf.N=c("#440154FF","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                                                                                 Plant.Height=c("#440154FF","#fdb462"),
+                                                                                 SSD=c("#440154FF","#b3de69")),
+           legend=F,cex.lab=0.00001,edge.width=0.1,cex.legend = 0.5,plot=F,
+           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
+draw.circle(x=0,y=0,radius=325.0508,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-50,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-100,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-150,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-200,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-250,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-300,col="#80808025",border="#80808025")
+par(new=T)
+trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#E4E419FF"),
+                                                                                 Leaf.Area=c("#440154FF","#8dd3c7"),
+                                                                                 SLA=c("#440154FF","#bebada"),
+                                                                                 Leaf.N=c("#440154FF","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                                                                                 Plant.Height=c("#440154FF","#fdb462"),
+                                                                                 SSD=c("#440154FF","#b3de69")),
+           legend=F,cex.lab=0.00001,edge.width=0.1,cex.legend = 0.5,plot=T,
+           edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
+dev.off()
+Sys.time()
+gc()
+
+Sys.time()
+pdf(file="./Figures/FullSupFigure_Names.pdf",width = 200,height = 200)
+plot.phylo(x = run_fullk_tree,show.node.label = F,show.tip.label = T,cex=0.1,plot=F,edge.width = 0.1)
+draw.circle(x=0,y=0,radius=325.0508,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-50,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-100,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-150,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-200,col="#80808025",border="#80808025")
+draw.circle(x=0,y=0,radius=325.0508-250,col="#FFFFFFFF",border="#FFFFFFFF")
+draw.circle(x=0,y=0,radius=325.0508-300,col="#80808025",border="#80808025")
+par(new=T)
+plot.phylo(x = run_fullk_tree,show.node.label = F,show.tip.label = T,cex=0.1,plot=T,edge.width = 0.1)
+dev.off()
+Sys.time()
+gc()
 
