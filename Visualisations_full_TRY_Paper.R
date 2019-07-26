@@ -175,7 +175,7 @@ analysis_start<-Sys.time()
 
 #Let's make some small dataset for run_thin5perc code.
 set.seed(01865)
-run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]a
+run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]
 #run_thin5perc_dat<-dat[sample(nrow(dat),size=1000),] for trialling
 run_thin5perc_tree<-drop.tip(tree,
                              tree$tip.label[!tree$tip.label %in% run_thin5perc_dat$match_col])
@@ -271,7 +271,7 @@ trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits,col
                                                                                          SSD=c("#440154FF","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,plot=T, 
            edge.color = viridis(100)[cut(run_thin5perc_tree_rec_num_double_log[match(run_thin5perc_tree$edge[,1],names(run_thin5perc_tree_rec_num_double_log[,1])),1],breaks=100)])
-add.color.bar(100,viridis(100),title = "To change manually",prompt = F,
+add.color.bar(150,viridis(100),title = "To change manually",prompt = F,
               lims = c(min(run_thin5perc_tree_rec_num_double_log[,1]),max(run_thin5perc_tree_rec_num_double_log[,1])),fsize=0.5,
               x=-100,y=-50)
 dev.off()
@@ -279,4 +279,11 @@ Sys.time()
 gc()
 
 
+pdf(file="./Figures/Main_text_fig_onlynodenames.pdf",width = 20,height = 20)
+plot.phylo(x = run_thin5perc_tree,type = "f",show.tip.label = F,show.node.label = T,edge.width = 0.1,edge.color = "gray",cex=0.6)
+dev.off()
 
+
+pdf(file="./Figures/Main_text_fig_nodes_and_tips.pdf",width = 100,height = 100)
+plot.phylo(x = run_thin5perc_tree,type = "f",show.tip.label = T,show.node.label = T,edge.width = 0.1,edge.color = "gray",cex = 0.1)
+dev.off()
