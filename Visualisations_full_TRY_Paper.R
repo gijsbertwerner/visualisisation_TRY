@@ -181,7 +181,6 @@ ggplot(data = dat)+
 
 analysis_start<-Sys.time()
 
-##Set up overall analysis for very small tree (1000 species, i.e. 0.2%)
 #Let's make some small dataset for run_fullk code.
 set.seed(01865)
 run_fullk_dat<-dat[sample(nrow(dat),size=nrow(dat)),]
@@ -298,6 +297,134 @@ trait.plot(tree = run_fullk_tree,dat = run_fullk_dat_plotting_traits %>% select(
            edge.color = viridis(100)[cut(run_fullk_tree_rec_num_double_log[match(run_fullk_tree$edge[,1],names(run_fullk_tree_rec_num_double_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "Double Log of trait #",prompt = F,
               lims = c(min(run_fullk_tree_rec_num_double_log[,1]),max(run_fullk_tree_rec_num_double_log[,1])),fsize=0.5,
+              x=-100,y=-50)
+dev.off()
+Sys.time()
+gc()
+
+
+
+
+# Analyses - run_thin25perc  ------------------------------------------------
+
+analysis_start<-Sys.time()
+
+#Let's make some small dataset for run_thin25perc code.
+set.seed(01865)
+run_thin25perc_dat<-dat[sample(nrow(dat),size=round(0.25*nrow(dat),0)),]
+#run_thin25perc_dat<-dat[sample(nrow(dat),size=1000),] for trialling
+run_thin25perc_tree<-drop.tip(tree,
+                         tree$tip.label[!tree$tip.label %in% run_thin25perc_dat$match_col])
+run_thin25perc_tree
+
+##ASRs
+
+####Quantiative reconstruction, log numbers
+summary(run_thin25perc_dat$Log.Number.of.Traits)
+#Create vector
+run_thin25perc_trait_num_log<-run_thin25perc_dat$Log.Number.of.Traits
+names(run_thin25perc_trait_num_log)<-run_thin25perc_dat$match_col
+#For ease of plotting, order vector same order as in tree
+run_thin25perc_trait_num_log<-run_thin25perc_trait_num_log[match(run_thin25perc_tree$tip.label,names(run_thin25perc_trait_num_log))]
+
+system.time(
+  run_thin25perc_tree_rec_num_log<-anc.recon(trait_data = run_thin25perc_trait_num_log,tree = run_thin25perc_tree)
+)
+save(run_thin25perc_tree_rec_num_log,file = "./Models/run_thin25perc_tree_rec_num_log")
+gc()
+
+####Quantiative reconstruction, double log numbers
+summary(run_thin25perc_dat$Double.Log.Number.of.Traits)
+#Create vector
+run_thin25perc_trait_num_double_log<-run_thin25perc_dat$Double.Log.Number.of.Traits
+names(run_thin25perc_trait_num_double_log)<-run_thin25perc_dat$match_col
+#For ease of plotting, order vector same order as in tree
+run_thin25perc_trait_num_double_log<-run_thin25perc_trait_num_double_log[match(run_thin25perc_tree$tip.label,names(run_thin25perc_trait_num_double_log))]
+
+system.time(
+  run_thin25perc_tree_rec_num_double_log<-anc.recon(trait_data = run_thin25perc_trait_num_double_log,tree = run_thin25perc_tree)
+)
+save(run_thin25perc_tree_rec_num_double_log,file = "./Models/run_thin25perc_tree_rec_num_double_log")
+gc()
+
+
+# Plotting ----------------------------------------------------------------
+
+####Combine everything (four potential combinations)
+
+#Generate baseplot
+names(run_thin25perc_dat)
+run_thin25perc_dat_plotting_traits <- run_thin25perc_dat %>% select(trait_num_bins,
+                                                          Leaf.Area,
+                                                          SLA,
+                                                          Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                          Seed.Dry.Mass,
+                                                          Plant.Height,
+                                                          Stem.Specific.Density..SSD.)
+head(run_thin25perc_dat_plotting_traits)
+names(run_thin25perc_dat_plotting_traits)[1]<-"Presence"
+names(run_thin25perc_dat_plotting_traits)[4]<-"Leaf.N"
+names(run_thin25perc_dat_plotting_traits)[7]<-"SSD"
+rownames(run_thin25perc_dat_plotting_traits)<-run_thin25perc_dat$match_col
+
+#RColorbrewer 9-class Set3, seelction
+#Suggestions Jens, June 19
+viridis(100)[1]
+table(run_thin25perc_dat$trait_num_bins)
+length(which(run_thin25perc_dat$Number.of.Traits<1))
+
+#Ok, do the median of each of these in double log terms
+log(log(median(c(1,5))+1)+1)
+log(log(median(c(6,10))+1)+1)
+log(log(median(c(11,100))+1)+1)
+log(log(median(c(101,max(run_thin25perc_dat$Number.of.Traits)))+1)+1)
+#and the max is
+log(log(max(run_thin25perc_dat$Number.of.Traits)+1)+1)
+
+#So that means bin number:
+round(100*(log(log(median(c(1,5))+1)+1)/1.994106))
+round(100*(log(log(median(c(6,10))+1)+1)/1.994106))
+round(100*(log(log(median(c(11,100))+1)+1)/1.994106))
+round(100*(log(log(median(c(101,max(run_thin25perc_dat$Number.of.Traits)))+1)+1)/1.994106))
+
+#And the corresponding colours
+viridis(100)[44]
+viridis(100)[58]
+viridis(100)[81]
+viridis(100)[96]
+
+Sys.time()
+pdf(file="./Figures/thin25perc_species_trait_num_double_log_ASR_dark_bg.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_thin25perc_tree,dat = run_thin25perc_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#7FD34EFF"),
+                                                                                 Leaf.Area=c("#440154FF","#8dd3c7"),
+                                                                                 SLA=c("#440154FF","#bebada"),
+                                                                                 Leaf.N=c("#440154FF","#fb8072"),
+                                                                                 Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                                                                                 Plant.Height=c("#440154FF","#fdb462"),
+                                                                                 SSD=c("#440154FF","#b3de69")),
+           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(run_thin25perc_tree_rec_num_double_log[match(run_thin25perc_tree$edge[,1],names(run_thin25perc_tree_rec_num_double_log[,1])),1],breaks=100)])
+add.color.bar(100,viridis(100),title = "Double Log of trait #",prompt = F,
+              lims = c(min(run_thin25perc_tree_rec_num_double_log[,1]),max(run_thin25perc_tree_rec_num_double_log[,1])),fsize=0.5,
+              x=-100,y=-50)
+dev.off()
+Sys.time()
+gc()
+
+
+Sys.time()
+pdf(file="./Figures/thin25perc_species_trait_num_double_log_ASR_dark_bg_no_innner.pdf",width = 8.2,height = 8.2)
+trait.plot(tree = run_thin25perc_tree,dat = run_thin25perc_dat_plotting_traits %>% select(-Presence),
+           cols = list(Leaf.Area=c("#440154FF","#8dd3c7"),
+                       SLA=c("#440154FF","#bebada"),
+                       Leaf.N=c("#440154FF","#fb8072"),
+                       Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                       Plant.Height=c("#440154FF","#fdb462"),
+                       SSD=c("#440154FF","#b3de69")),
+           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
+           edge.color = viridis(100)[cut(run_thin25perc_tree_rec_num_double_log[match(run_thin25perc_tree$edge[,1],names(run_thin25perc_tree_rec_num_double_log[,1])),1],breaks=100)])
+add.color.bar(100,viridis(100),title = "Double Log of trait #",prompt = F,
+              lims = c(min(run_thin25perc_tree_rec_num_double_log[,1]),max(run_thin25perc_tree_rec_num_double_log[,1])),fsize=0.5,
               x=-100,y=-50)
 dev.off()
 Sys.time()
