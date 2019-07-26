@@ -175,10 +175,10 @@ analysis_start<-Sys.time()
 
 #Let's make some small dataset for run_thin5perc code.
 set.seed(01865)
-run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]
+run_thin5perc_dat<-dat[sample(nrow(dat),size=round(0.05*nrow(dat),0)),]a
 #run_thin5perc_dat<-dat[sample(nrow(dat),size=1000),] for trialling
 run_thin5perc_tree<-drop.tip(tree,
-                         tree$tip.label[!tree$tip.label %in% run_thin5perc_dat$match_col])
+                             tree$tip.label[!tree$tip.label %in% run_thin5perc_dat$match_col])
 run_thin5perc_tree
 
 ##ASRs
@@ -219,12 +219,12 @@ gc()
 #Generate baseplot
 names(run_thin5perc_dat)
 run_thin5perc_dat_plotting_traits <- run_thin5perc_dat %>% select(trait_num_bins,
-                                                          Leaf.Area,
-                                                          SLA,
-                                                          Leaf.Nitrogen.Content.Per.Dry.Mass,
-                                                          Seed.Dry.Mass,
-                                                          Plant.Height,
-                                                          Stem.Specific.Density..SSD.)
+                                                                  Leaf.Area,
+                                                                  SLA,
+                                                                  Leaf.Nitrogen.Content.Per.Dry.Mass,
+                                                                  Seed.Dry.Mass,
+                                                                  Plant.Height,
+                                                                  Stem.Specific.Density..SSD.)
 head(run_thin5perc_dat_plotting_traits)
 names(run_thin5perc_dat_plotting_traits)[1]<-"Presence"
 names(run_thin5perc_dat_plotting_traits)[4]<-"Leaf.N"
@@ -260,12 +260,12 @@ viridis(100)[95]
 Sys.time()
 pdf(file="./Figures/thin5perc_species_trait_num_double_log_ASR_dark_bg.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#DDE318FF"),
-                                                                                 Leaf.Area=c("#440154FF","#8dd3c7"),
-                                                                                 SLA=c("#440154FF","#bebada"),
-                                                                                 Leaf.N=c("#440154FF","#fb8072"),
-                                                                                 Seed.Dry.Mass=c("#440154FF","#80b1d3"),
-                                                                                 Plant.Height=c("#440154FF","#fdb462"),
-                                                                                 SSD=c("#440154FF","#b3de69")),
+                                                                                         Leaf.Area=c("#440154FF","#8dd3c7"),
+                                                                                         SLA=c("#440154FF","#bebada"),
+                                                                                         Leaf.N=c("#440154FF","#fb8072"),
+                                                                                         Seed.Dry.Mass=c("#440154FF","#80b1d3"),
+                                                                                         Plant.Height=c("#440154FF","#fdb462"),
+                                                                                         SSD=c("#440154FF","#b3de69")),
            legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
            edge.color = viridis(100)[cut(run_thin5perc_tree_rec_num_double_log[match(run_thin5perc_tree$edge[,1],names(run_thin5perc_tree_rec_num_double_log[,1])),1],breaks=100)])
 add.color.bar(100,viridis(100),title = "To change manually",prompt = F,
