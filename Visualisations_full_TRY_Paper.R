@@ -183,20 +183,6 @@ run_thin5perc_tree
 
 ##ASRs
 
-####Quantiative reconstruction, log numbers
-summary(run_thin5perc_dat$Log.Number.of.Traits)
-#Create vector
-run_thin5perc_trait_num_log<-run_thin5perc_dat$Log.Number.of.Traits
-names(run_thin5perc_trait_num_log)<-run_thin5perc_dat$match_col
-#For ease of plotting, order vector same order as in tree
-run_thin5perc_trait_num_log<-run_thin5perc_trait_num_log[match(run_thin5perc_tree$tip.label,names(run_thin5perc_trait_num_log))]
-
-system.time(
-  run_thin5perc_tree_rec_num_log<-anc.recon(trait_data = run_thin5perc_trait_num_log,tree = run_thin5perc_tree)
-)
-save(run_thin5perc_tree_rec_num_log,file = "./Models/run_thin5perc_tree_rec_num_log")
-gc()
-
 ####Quantiative reconstruction, double log numbers
 summary(run_thin5perc_dat$Double.Log.Number.of.Traits)
 #Create vector
@@ -258,46 +244,7 @@ viridis(100)[81]
 viridis(100)[95]
 
 Sys.time()
-pdf(file="./Figures/thin5perc_species_trait_num_double_log_ASR_dark_bg.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#DDE318FF"),
-                                                                                         Leaf.Area=c("#440154FF","#8dd3c7"),
-                                                                                         SLA=c("#440154FF","#bebada"),
-                                                                                         Leaf.N=c("#440154FF","#fb8072"),
-                                                                                         Seed.Dry.Mass=c("#440154FF","#80b1d3"),
-                                                                                         Plant.Height=c("#440154FF","#fdb462"),
-                                                                                         SSD=c("#440154FF","#b3de69")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(run_thin5perc_tree_rec_num_double_log[match(run_thin5perc_tree$edge[,1],names(run_thin5perc_tree_rec_num_double_log[,1])),1],breaks=100)])
-add.color.bar(100,viridis(100),title = "To change manually",prompt = F,
-              lims = c(min(run_thin5perc_tree_rec_num_double_log[,1]),max(run_thin5perc_tree_rec_num_double_log[,1])),fsize=0.5,
-              x=-100,y=-50)
-dev.off()
-Sys.time()
-gc()
-
-
-Sys.time()
-pdf(file="./Figures/thin5perc_species_trait_num_double_log_ASR_dark_bg_no_innner.pdf",width = 8.2,height = 8.2)
-trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits %>% select(-Presence),
-           cols = list(Leaf.Area=c("#440154FF","#8dd3c7"),
-                       SLA=c("#440154FF","#bebada"),
-                       Leaf.N=c("#440154FF","#fb8072"),
-                       Seed.Dry.Mass=c("#440154FF","#80b1d3"),
-                       Plant.Height=c("#440154FF","#fdb462"),
-                       SSD=c("#440154FF","#b3de69")),
-           legend=T,cex.lab=0.0001,edge.width=0.1,cex.legend = 0.5,
-           edge.color = viridis(100)[cut(run_thin5perc_tree_rec_num_double_log[match(run_thin5perc_tree$edge[,1],names(run_thin5perc_tree_rec_num_double_log[,1])),1],breaks=100)])
-add.color.bar(100,viridis(100),title = "To change manually",prompt = F,
-              lims = c(min(run_thin5perc_tree_rec_num_double_log[,1]),max(run_thin5perc_tree_rec_num_double_log[,1])),fsize=0.5,
-              x=-100,y=-50)
-dev.off()
-Sys.time()
-gc()
-
-
-
-Sys.time()
-pdf(file="./Figures/thin5perc_species_trait_num_double_log_ASR_dark_bg_time_rings.pdf",width = 8.2,height = 8.2)
+pdf(file="./Figures/Main_text_fig_raw.pdf",width = 8.2,height = 8.2)
 trait.plot(tree = run_thin5perc_tree,dat = run_thin5perc_dat_plotting_traits,cols = list(Presence=c("#440154FF","#26818EFF","#1FA287FF","#7FD34EFF","#DDE318FF"),
                                                                                          Leaf.Area=c("#440154FF","#8dd3c7"),
                                                                                          SLA=c("#440154FF","#bebada"),
